@@ -46,7 +46,7 @@
 
   <main class="flex-1 max-w-[1680px] w-full mx-auto p-2.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
     <div class="lg:col-span-8 flex flex-col gap-3">
-      <div class="relative rounded-2xl overflow-hidden border border-slate-800/90 bg-[#040711] shadow-2xl flex flex-col h-[400px] sm:h-[470px] lg:h-[510px]">
+      <div class="relative rounded-2xl overflow-hidden border border-slate-800/90 bg-[#040711] shadow-2xl flex flex-col h-[420px] sm:h-[490px] lg:h-[530px]">
         <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
           <div class="glass-panel px-3 py-2 rounded-xl pointer-events-auto flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400/50 flex flex-col items-center justify-center shrink-0">
@@ -276,18 +276,17 @@
     function computeShells(z){const s=[[1,2],[2,2],[2,6],[3,2],[3,6],[4,2],[3,10],[4,6],[5,2],[4,10],[5,6],[6,2],[4,14],[5,10],[6,6],[7,2],[5,14],[6,10],[7,6]],sh=[0,0,0,0,0,0,0];let r=z;for(const[n,c]of s){if(r<=0)break;const t=Math.min(r,c);sh[n-1]+=t;r-=t;}return sh.filter(c=>c>0);}
     const ELEMENTS = RAW_ELEMENTS.map(r=>{
       const [z,sym,nameEn,nameTh,mass,group,period,gridRow,gridCol,catKey,phase,sectorKey]=r;
-      const shells=computeShells(z);
-      return {z,sym,nameEn,nameTh,mass,group,period,gridRow,gridCol,catKey,phase,sectorKey,shells,protons:z,electrons:z,neutrons:Math.max(0,Math.round(mass)-z)};
+      return {z,sym,nameEn,nameTh,mass,group,period,gridRow,gridCol,catKey,phase,sectorKey,shells:computeShells(z),protons:z,electrons:z,neutrons:Math.max(0,Math.round(mass)-z)};
     });
     const SHOWCASES = [
-      {id:0,badge_th:"ชิ้นที่ 1 • O₂/O₃",badge_en:"#1 • O₂ / O₃",short_th:"ก๊าซออกซิเจน",short_en:"Oxygen Gas",formula:"O₂ (O=O) & O₃",title_th:"กิ่งของก๊าซออกซิเจน & โอโซน",title_en:"Oxygen Double Bond & Ozone Branching",desc_th:"พันธะคู่ O=O และกิ่งมุมงอ 116.8° ของโอโซน พร้อมพฤติกรรมพาราแมกเนติก",desc_en:"Covalent double bond O=O, bent 116.8° ozone (O₃) branching, and paramagnetic clustering.",param_th:"สนามแม่เหล็ก:",param_en:"Magnetic Field:",b_th:["ออกซิเจน 2 อะตอมสร้างพันธะคู่","โอโซน O₃ แตกกิ่งมุมงอ 116.8°"],b_en:["O=O double covalent bond","116.8° bent ozone O₃ branching"],primaryZ:8},
-      {id:1,badge_th:"ชิ้นที่ 2 • เมมโมรี่โฟม",badge_en:"#2 • Memory Foam",short_th:"เมมโมรี่โฟม",short_en:"Memory Foam",formula:"Polyurethane C-H-O-N",title_th:"เมมโมรี่โฟม (เบาะ ที่นอน ยานอวกาศ)",title_en:"Memory Foam (Cushions, Mattresses & Spacecraft)",desc_th:"โครงข่ายพอลิยูรีเทนแบบเซลล์เปิด (Viscoelastic) ยุบตัวรับแรง G-Force และคืนตัวช้าๆ",desc_en:"NASA-developed open-cell viscoelastic polyurethane network absorbing G-Force and rebounding slowly.",param_th:"แรงกดทับ (Stress):",param_en:"Compression Stress:",b_th:["สายโซ่ C-O ยืดหยุ่นแบบสปริง","พันธะไฮโดรเจน N-H คลายตัวเมื่อรับน้ำหนัก"],b_en:["Flexible C-O polyol spring chains","H-bonds between urethane hard segments"],primaryZ:6},
-      {id:2,badge_th:"ชิ้นที่ 3 • เพชร & แกรฟีน",badge_en:"#3 • Diamond & Graphene",short_th:"เพชร & แกรฟีน",short_en:"Diamond/Graphene",formula:"Cₙ (sp³ / sp²)",title_th:"โครงผลึกเพชร & แผ่นแกรฟีน",title_en:"Diamond Tetrahedral & Graphene Honeycomb",desc_th:"คาร์บอนทรงสี่หน้า 109.5° แข็งที่สุด และแผ่นรังผึ้งนำไฟฟ้า",desc_en:"Ultra-hard 109.5° sp³ diamond lattice vs conductive 2D sp² hexagonal graphene sheet.",param_th:"คลื่นโฟนอน:",param_en:"Phonon Vibration:",b_th:["sp³ รับแรงอัดมหาศาล","sp² นำความร้อนและไฟฟ้าสูง"],b_en:["sp³ tetrahedral compression resistance","sp² rapid electron & heat conduction"],primaryZ:6},
-      {id:3,badge_th:"ชิ้นที่ 4 • ผลึกน้ำแข็ง",badge_en:"#4 • Ice Crystal",short_th:"ผลึกน้ำแข็ง",short_en:"Ice Crystal",formula:"(H₂O)ₙ Ice-Ih",title_th:"กิ่งผลึกน้ำแข็งหกเหลี่ยม",title_en:"Hexagonal Ice Crystal & H-Bond Network",desc_th:"พันธะไฮโดรเจนตรึงโมเลกุลน้ำเป็นหกเหลี่ยมที่มีช่องว่างตรงกลาง",desc_en:"104.5° polar water molecules locked into open hexagonal rings by hydrogen bonding.",param_th:"พลังงานความร้อน:",param_en:"Thermal Energy:",b_th:["มุมพันธะ 104.5°","ความหนาแน่นลดลงเมื่อแข็งตัว"],b_en:["104.5° H-O-H bond angle","Lower density than liquid water"],primaryZ:1},
-      {id:4,badge_th:"ชิ้นที่ 5 • โลหะจำรูป",badge_en:"#5 • Nitinol Alloy",short_th:"โลหะจำรูป Nitinol",short_en:"Nitinol Alloy",formula:"NiTi B2 Alloy",title_th:"Nitinol อุปกรณ์ยานอวกาศ",title_en:"Nitinol Shape-Memory Aerospace Alloy",desc_th:"สลับเฟส Austenite ↔ Martensite คืนรูปอัตโนมัติเมื่อโดนความร้อน",desc_en:"Diffusionless Austenite ↔ Martensite shear transformation snapping back to original shape when heated.",param_th:"การเฉือนเฟส:",param_en:"Phase Shear:",b_th:["ไทเทเนียม + นิกเกิล 1:1","ใช้กางเสาอากาศและขดลวดหัวใจ"],b_en:["1:1 Ti-Ni B2 superlattice","Used in spacecraft antennas & medical stents"],primaryZ:22},
-      {id:5,badge_th:"ชิ้นที่ 6 • วัสดุนาโน",badge_en:"#6 • Silica Aerogel",short_th:"แอโรเจลซิลิกา",short_en:"Silica Aerogel",formula:"SiO₂ Aerogel",title_th:"แอโรเจลซิลิกา (NASA Stardust)",title_en:"Silica Aerogel (NASA Stardust Collector)",desc_th:"โพรงอากาศ 99.8% กันความร้อนสูงและดักฝุ่นดาวหาง",desc_en:"99.8% nanoporous silica web insulating Mars rovers and capturing hypervelocity comet dust.",param_th:"ความเร็วฝุ่นดาวหาง:",param_en:"Dust Velocity:",b_th:["โครงข่าย Si-O-Si รูพรุนนาโน","ฉนวนกันความร้อนยานมาร์สโรเวอร์"],b_en:["Nanoporous Si-O-Si thermal barrier","Captures 6 km/s cosmic particles"],primaryZ:14},
-      {id:6,badge_th:"ชิ้นที่ 7 • ตัวนำยิ่งยวด",badge_en:"#7 • Superconductor",short_th:"ตัวนำยิ่งยวด",short_en:"YBCO Levitation",formula:"YBa₂Cu₃O₇",title_th:"YBCO & Meissner Effect",title_en:"YBCO High-Tc Superconductor & Meissner Effect",desc_th:"ระนาบ CuO₂ นำไฟฟ้าไร้ความต้านทาน ทำให้แม่เหล็กลอยตัวควอนตัม",desc_en:"CuO₂ planes carry zero-resistance Cooper pairs above 93 K, pinning magnetic flux for levitation.",param_th:"ความสูงลอยตัว:",param_en:"Levitation Height:",b_th:["ทำงานเหนือ 93 K","ใช้ในรถไฟ Maglev และ MRI"],b_en:["Operates above liquid nitrogen (93 K)","Powers Maglev trains & MRI scanners"],primaryZ:39},
-      {id:7,badge_th:"ชิ้นที่ 8 • ชิป AI 2nm",badge_en:"#8 • 2nm AI Chip",short_th:"ชิป AI GAAFET",short_en:"2nm AI Chip",formula:"Si + HfO₂ GAAFET",title_th:"ทรานซิสเตอร์ชิป AI ยุคใหม่",title_en:"2nm Monocrystalline Si GAAFET Transistor",desc_th:"นาโนชีตซิลิคอนล้อมรอบเกตไดอิเล็กทริก เร่งความเร็วประมวลผล AI",desc_en:"9N pure silicon nanosheets wrapped by HfO₂ dielectric gates accelerating AI tensor compute.",param_th:"แรงดันเกต:",param_en:"Gate Voltage:",b_th:["ผลึกเดี่ยว 9N ความบริสุทธิ์สูง","ลดการรั่วไหลของกระแสไฟฟ้า"],b_en:["99.9999999% pure Si lattice","Minimizes quantum current leakage"],primaryZ:14}
+      {id:0,badge_th:"ชิ้นที่ 1 • O₂/O₃",badge_en:"#1 • O₂ / O₃",short_th:"ก๊าซออกซิเจน",short_en:"Oxygen Gas",formula:"O₂ (O=O) & O₃",title_th:"กิ่งของก๊าซออกซิเจน & โอโซน",title_en:"Oxygen Double Bond & Ozone Branching",desc_th:"พันธะคู่ O=O พร้อมกิ่งอิเล็กตรอนคู่โดดเดี่ยว กิ่งโอโซนมุมงอ 116.8° และคลัสเตอร์พาราแมกเนติก",desc_en:"Covalent double bond O=O with lone-pair orbitals, bent 116.8° ozone (O₃) branching, and paramagnetic clustering.",param_th:"สนามแม่เหล็ก:",param_en:"Magnetic Field:",b_th:["ออกซิเจน 2 อะตอมสร้างพันธะคู่ O=O","กิ่งอิเล็กตรอนคู่โดดเดี่ยว & โอโซน O₃ มุม 116.8°"],b_en:["O=O double covalent bond","Lone-pair lobes & 116.8° bent ozone O₃"],primaryZ:8},
+      {id:1,badge_th:"ชิ้นที่ 2 • เมมโมรี่โฟม",badge_en:"#2 • Memory Foam",short_th:"เมมโมรี่โฟม",short_en:"Memory Foam",formula:"Polyurethane C-H-O-N",title_th:"เมมโมรี่โฟม (เบาะ ที่นอน ยานอวกาศ)",title_en:"Memory Foam (Cushions, Mattresses & Spacecraft)",desc_th:"โครงข่าย 3 มิติ 4 ชั้น (C, H, O, N) เชื่อมด้วยเส้นพันธะโพลิออลและพันธะไฮโดรเจน ยุบตัวรับแรง G-Force และคืนตัวช้าๆ",desc_en:"4-layer 3D viscoelastic polyurethane matrix (C, H, O, N) with dynamic bond struts absorbing G-Force.",param_th:"แรงกดทับ (Stress):",param_en:"Compression Stress:",b_th:["สายโซ่ C-O แนวนอนยืดหยุ่นแบบสปริง","พันธะไฮโดรเจน N-H แนวตั้งคลายตัวเมื่อถูกกดทับ"],b_en:["Horizontal C-O polyol spring chains","Vertical H-bond struts compress & rebound slowly"],primaryZ:6},
+      {id:2,badge_th:"ชิ้นที่ 3 • เพชร & แกรฟีน",badge_en:"#3 • Diamond & Graphene",short_th:"เพชร & แกรฟีน",short_en:"Diamond/Graphene",formula:"Cₙ (sp³ / sp²)",title_th:"โครงผลึกเพชร & แผ่นแกรฟีน",title_en:"Diamond Tetrahedral & Graphene Honeycomb",desc_th:"คาร์บอนทรงสี่หน้า 109.5° เชื่อมพันธะ 4 ทิศทางแข็งแกร่งที่สุด พร้อมคลื่นสั่นสะเทือนโฟนอน",desc_en:"3D tetrahedral sp³ diamond lattice (109.5°) with rigid covalent bonds and phonon wave simulation.",param_th:"คลื่นโฟนอน:",param_en:"Phonon Vibration:",b_th:["sp³ รับแรงอัดมหาศาลทุกทิศทาง","เส้นพันธะโคเวเลนต์แข็งแกร่ง"],b_en:["sp³ 4-way tetrahedral covalent bonds","Extreme compressive strength"],primaryZ:6},
+      {id:3,badge_th:"ชิ้นที่ 4 • ผลึกน้ำแข็ง",badge_en:"#4 • Ice Crystal",short_th:"ผลึกน้ำแข็ง",short_en:"Ice Crystal",formula:"(H₂O)ₙ Ice-Ih",title_th:"กิ่งผลึกน้ำแข็งหกเหลี่ยม",title_en:"Hexagonal Ice Crystal & H-Bond Network",desc_th:"พันธะไฮโดรเจนตรึงโมเลกุลน้ำ (104.5°) เป็นโครงข่ายหกเหลี่ยม 2 ชั้นที่มีช่องว่างตรงกลาง",desc_en:"Two stacked hexagonal rings of polar H₂O molecules linked by H-bonds and dendritic branches.",param_th:"พลังงานความร้อน:",param_en:"Thermal Energy:",b_th:["มุมพันธะ 104.5° พร้อมแขนกิ่งผลึก","ช่องว่างหกเหลี่ยมทำให้น้ำแข็งลอยน้ำ"],b_en:["104.5° H₂O angle with crystal branches","Hexagonal cavities lower ice density"],primaryZ:1},
+      {id:4,badge_th:"ชิ้นที่ 5 • โลหะจำรูป",badge_en:"#5 • Nitinol Alloy",short_th:"โลหะจำรูป Nitinol",short_en:"Nitinol Alloy",formula:"NiTi B2 Alloy",title_th:"Nitinol อุปกรณ์ยานอวกาศ",title_en:"Nitinol Shape-Memory Aerospace Alloy",desc_th:"อะตอม Ti และ Ni ยึดโยงเป็นโครงผลึก B2 Superlattice สลับเฟส Austenite ↔ Martensite เมื่อรับแรงเฉือน",desc_en:"3D B2 Ti-Ni superlattice with intermetallic bonds undergoing Austenite ↔ Martensite shear.",param_th:"การเฉือนเฟส:",param_en:"Phase Shear:",b_th:["ไทเทเนียม + นิกเกิล 1:1 เชื่อม 8 ทิศทาง","คืนรูปเมื่อได้รับความร้อนในอวกาศ"],b_en:["1:1 Ti-Ni 8-fold coordinated lattice","Thermally driven shape recovery"],primaryZ:22},
+      {id:5,badge_th:"ชิ้นที่ 6 • วัสดุนาโน",badge_en:"#6 • Silica Aerogel",short_th:"แอโรเจลซิลิกา",short_en:"Silica Aerogel",formula:"SiO₂ Aerogel",title_th:"แอโรเจลซิลิกา (NASA Stardust)",title_en:"Silica Aerogel (NASA Stardust Collector)",desc_th:"โครงข่าย Si-O-Si รูพรุน 99.8% ดักจับฝุ่นดาวหางความเร็วสูงและกันความร้อนยานอวกาศ",desc_en:"99.8% nanoporous 3D silica web decelerating hypervelocity comet dust particles.",param_th:"ความเร็วฝุ่นดาวหาง:",param_en:"Dust Velocity:",b_th:["โครงข่ายใยแก้วซิลิกานาโน","ชะลอฝุ่นอวกาศ 6 km/s โดยไม่เผาไหม้"],b_en:["3D nanoscale Si-O-Si web","Captures 6 km/s cosmic dust"],primaryZ:14},
+      {id:6,badge_th:"ชิ้นที่ 7 • ตัวนำยิ่งยวด",badge_en:"#7 • Superconductor",short_th:"ตัวนำยิ่งยวด",short_en:"YBCO Levitation",formula:"YBa₂Cu₃O₇",title_th:"YBCO & Meissner Effect",title_en:"YBCO High-Tc Superconductor & Meissner Effect",desc_th:"ระนาบ CuO₂ นำไฟฟ้าไร้ความต้านทาน ทำให้แม่เหล็กลอยตัวควอนตัมเหนือผลึกเพอรอฟสไกต์",desc_en:"Stacked CuO₂ perovskite planes repelling & pinning magnetic flux for quantum levitation.",param_th:"ความสูงลอยตัว:",param_en:"Levitation Height:",b_th:["ทำงานเหนือ 93 K","วงแหวนฟลักซ์แม่เหล็กควอนตัม"],b_en:["Operates above 93 K","Quantum flux-pinned levitation"],primaryZ:39},
+      {id:7,badge_th:"ชิ้นที่ 8 • ชิป AI 2nm",badge_en:"#8 • 2nm AI Chip",short_th:"ชิป AI GAAFET",short_en:"2nm AI Chip",formula:"Si + HfO₂ GAAFET",title_th:"ทรานซิสเตอร์ชิป AI ยุคใหม่",title_en:"2nm Monocrystalline Si GAAFET Transistor",desc_th:"แผ่นนาโนชีตซิลิคอน 3 ชั้นล้อมรอบด้วยเกต HfO₂ เร่งความเร็วกระแสอิเล็กตรอนประมวลผล AI",desc_en:"3 stacked silicon nanosheet channels wrapped by HfO₂ gate-all-around dielectric.",param_th:"แรงดันเกต:",param_en:"Gate Voltage:",b_th:["3 ช่องทางเดินอิเล็กตรอน Si","ลดการรั่วไหลระดับ 2 นาโนเมตร"],b_en:["3 stacked Si nanosheet channels","Controls 2nm quantum tunneling"],primaryZ:14}
     ];
     const REACTIONS = [
       {id:0,title_th:"2H₂ + O₂ → 2H₂O",title_en:"2H₂ + O₂ → 2H₂O",sub_th:"เชื้อเพลิงจรวด",sub_en:"Rocket Propellant"},
@@ -307,12 +306,14 @@
     const container=document.getElementById("threeContainer"),scene=new THREE.Scene();
     const camera=new THREE.PerspectiveCamera(50,1,0.1,1000),renderer=new THREE.WebGLRenderer({antialias:true});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setClearColor(0x040711,1);container.appendChild(renderer.domElement);
-    scene.add(new THREE.AmbientLight(0xdbeafe,0.8));const dl=new THREE.DirectionalLight(0x38bdf8,1.2);dl.position.set(30,40,35);scene.add(dl);
+    scene.add(new THREE.AmbientLight(0xdbeafe,0.85));
+    const dl=new THREE.DirectionalLight(0x38bdf8,1.25);dl.position.set(30,45,40);scene.add(dl);
+    const dl2=new THREE.DirectionalLight(0xf43f5e,0.55);dl2.position.set(-30,-20,-30);scene.add(dl2);
     const tableGroup=new THREE.Group(),atomGroup=new THREE.Group(),reactionGroup=new THREE.Group(),materialGroup=new THREE.Group();
     scene.add(tableGroup,atomGroup,reactionGroup,materialGroup);
 
     const cam={r:42,tr:42,th:0.15,ph:1.38,tth:0.15,tph:1.38};
-    function resetCam(){if(state.mode==="table"){cam.tr=42;cam.tth=0;cam.tph=1.48;}else{cam.tr=25;cam.tth=0.35;cam.tph=1.25;}}
+    function resetCam(){if(state.mode==="table"){cam.tr=42;cam.tth=0;cam.tph=1.48;}else{cam.tr=26;cam.tth=0.35;cam.tph=1.22;}}
     let drag=false,prev={x:0,y:0},down={x:0,y:0},ray=new THREE.Raycaster(),mndc=new THREE.Vector2();
     renderer.domElement.addEventListener("pointerdown",e=>{drag=true;prev={x:e.clientX,y:e.clientY};down={x:e.clientX,y:e.clientY};});
     window.addEventListener("pointermove",e=>{if(!drag)return;cam.tth-=(e.clientX-prev.x)*0.0075;cam.tph=Math.max(0.2,Math.min(Math.PI-0.2,cam.tph-(e.clientY-prev.y)*0.0075));prev={x:e.clientX,y:e.clientY};});
@@ -320,6 +321,16 @@
     renderer.domElement.addEventListener("wheel",e=>{e.preventDefault();cam.tr=Math.max(8,Math.min(85,cam.tr+e.deltaY*0.03));},{passive:false});
     function resize(){const w=container.clientWidth||800,h=container.clientHeight||480;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
     window.addEventListener("resize",resize);
+
+    function createBondCylinder(p1,p2,radius,colorHex,opacity=1.0){
+      const dir=new THREE.Vector3().subVectors(p2,p1),len=dir.length();
+      const geo=new THREE.CylinderGeometry(radius,radius,Math.max(0.05,len),12);
+      const mat=new THREE.MeshStandardMaterial({color:colorHex,roughness:0.3,metalness:0.2,transparent:opacity<1.0,opacity:opacity});
+      const mesh=new THREE.Mesh(geo,mat);
+      mesh.position.addVectors(p1,p2).multiplyScalar(0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());
+      return mesh;
+    }
 
     const tableTileMeshes=[];
     function tileTex(el,sel){const c=document.createElement("canvas");c.width=128;c.height=128;const x=c.getContext("2d"),col=CATEGORY_META[el.catKey].color;x.fillStyle=sel?"#0ea5e9":"#0f172a";x.fillRect(0,0,128,128);x.strokeStyle=sel?"#fff":col;x.lineWidth=6;x.strokeRect(4,4,120,120);x.fillStyle="#fff";x.font="bold 20px Inter";x.fillText(el.z,12,34);x.fillStyle=sel?"#fff":col;x.font="bold 44px Inter";x.textAlign="center";x.fillText(el.sym,64,82);x.fillStyle="#cbd5e1";x.font="14px Inter";x.fillText((lang==="en"?el.nameEn:el.nameTh).slice(0,10),64,110);return new THREE.CanvasTexture(c);}
@@ -351,10 +362,140 @@
       r1.position.set(-5,0,0);r2.position.set(5,0,0);p1.scale.set(0.001,0.001,0.001);reactionGroup.add(r1,r2,p1);rxObjs.push({r1,r2,p1});
     }
 
+    // FULL 3D MULTI-LAYER MATERIALS WITH DYNAMIC BOND CYLINDERS
     let matObjs=[];
-    function buildShowcase(id){while(materialGroup.children.length)materialGroup.remove(materialGroup.children[0]);matObjs=[];
-      if(id===1){for(let y=0;y<3;y++){for(let x=0;x<5;x++){const n=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,16),new THREE.MeshStandardMaterial({color:(x+y)%2===0?0x64748b:0xef4444}));const bp=new THREE.Vector3((x-2)*2.8,(y-1)*3,0);n.position.copy(bp);materialGroup.add(n);matObjs.push({type:"foam",m:n,bp,cx:x});}}}
-      else{for(let x=-1;x<=1;x++){for(let y=-1;y<=1;y++){for(let z=-1;z<=1;z++){const m=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,16),new THREE.MeshStandardMaterial({color:id===4?0x38bdf8:(id===6?0x10b981:0xa855f7)}));const bp=new THREE.Vector3(x*3.2,y*3.2,z*3.2);m.position.copy(bp);materialGroup.add(m);matObjs.push({type:"lat",m,bp,y});}}}}
+    function buildShowcase(id){
+      while(materialGroup.children.length)materialGroup.remove(materialGroup.children[0]);
+      matObjs=[];
+      const matO=new THREE.MeshStandardMaterial({color:0xef4444,roughness:0.25});
+      const matH=new THREE.MeshStandardMaterial({color:0xf8fafc,roughness:0.2});
+      const matC=new THREE.MeshStandardMaterial({color:0x64748b,roughness:0.35,metalness:0.3});
+      const matN=new THREE.MeshStandardMaterial({color:0x3b82f6,roughness:0.25});
+      const matTi=new THREE.MeshStandardMaterial({color:0x38bdf8,roughness:0.2,metalness:0.75});
+      const matNi=new THREE.MeshStandardMaterial({color:0xa855f7,roughness:0.25,metalness:0.75});
+
+      if(id===0){
+        // 1. O2 Double Bond + Lone-Pair Branches + O3 Bent Ozone + Paramagnetic O2 Cluster
+        const cg=new THREE.Group();
+        const o1=new THREE.Mesh(new THREE.SphereGeometry(1.1,24,24),matO),o2=new THREE.Mesh(new THREE.SphereGeometry(1.1,24,24),matO);
+        o1.position.set(-1.35,0,0);o2.position.set(1.35,0,0);cg.add(o1,o2);
+        cg.add(createBondCylinder(new THREE.Vector3(-1.35,0.26,0),new THREE.Vector3(1.35,0.26,0),0.15,0xf8fafc));
+        cg.add(createBondCylinder(new THREE.Vector3(-1.35,-0.26,0),new THREE.Vector3(1.35,-0.26,0),0.15,0x38bdf8));
+        const lpMat=new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.45});
+        [[-1.35,0,0,-2.6,1.3,0.5],[-1.35,0,0,-2.6,-1.3,-0.5],[1.35,0,0,2.6,1.3,-0.5],[1.35,0,0,2.6,-1.3,0.5]].forEach(([x1,y1,z1,x2,y2,z2])=>{
+          const p1=new THREE.Vector3(x1,y1,z1),p2=new THREE.Vector3(x2,y2,z2);
+          cg.add(createBondCylinder(p1,p2,0.08,0x38bdf8,0.65));
+          const lb=new THREE.Mesh(new THREE.SphereGeometry(0.42,14,14),lpMat);lb.position.copy(p2);cg.add(lb);
+        });
+        materialGroup.add(cg);matObjs.push({type:"o2c",g:cg});
+
+        const o3=new THREE.Group();o3.position.set(0,5.2,-2);
+        const oa=new THREE.Mesh(new THREE.SphereGeometry(0.88,20,20),matO),ob=oa.clone(),oc=oa.clone();
+        oa.position.set(0,0.8,0);ob.position.set(-1.9,-0.4,0);oc.position.set(1.9,-0.4,0);
+        o3.add(oa,ob,oc,createBondCylinder(oa.position,ob.position,0.14,0xfca5a5),createBondCylinder(oa.position,oc.position,0.14,0xfca5a5));
+        materialGroup.add(o3);matObjs.push({type:"o3b",g:o3});
+
+        for(let i=0;i<12;i++){
+          const mol=new THREE.Group(),s1=new THREE.Mesh(new THREE.SphereGeometry(0.5,14,14),matO),s2=s1.clone();
+          s1.position.x=-0.55;s2.position.x=0.55;mol.add(s1,s2,createBondCylinder(s1.position,s2.position,0.09,0xe2e8f0));
+          const a=i/12*Math.PI*2,r=6.8+(i%3)*2,bp=new THREE.Vector3(Math.cos(a)*r,((i%5)-2)*2,Math.sin(a)*r);
+          mol.position.copy(bp);materialGroup.add(mol);
+          matObjs.push({type:"o2g",g:mol,bp,ap:new THREE.Vector3(((i%6)-2.5)*2.2,(Math.floor(i/6)-0.5)*3,2.5)});
+        }
+
+      }else if(id===1){
+        // 2. Memory Foam 4-Layer 3D Polyurethane Viscoelastic Matrix with Dynamic Bond Struts
+        const layers=4,cols=6,grid=[];
+        for(let ly=0;ly<layers;ly++){
+          const row=[],by=(ly-1.5)*3.4;
+          for(let nx=0;nx<cols;nx++){
+            const bx=(nx-2.5)*3.0+(ly%2===0?0.6:-0.6),bz=((nx+ly)%3-1)*2.4;
+            const ug=new THREE.Group(),at=(nx+ly)%3===0?"N":((nx+ly)%3===1?"O":"C");
+            ug.add(new THREE.Mesh(new THREE.SphereGeometry(at==="C"?0.58:0.64,18,18),at==="N"?matN:(at==="O"?matO:matC)));
+            const sd=new THREE.Mesh(new THREE.SphereGeometry(0.32,12,12),at==="N"?matH:matO);sd.position.set(0.55,0.65,0.35);
+            ug.add(sd,createBondCylinder(new THREE.Vector3(0,0,0),sd.position,0.08,0xcbd5e1));
+            ug.position.set(bx,by,bz);materialGroup.add(ug);
+            const nd={g:ug,bp:new THREE.Vector3(bx,by,bz),col:nx};row.push(nd);
+            matObjs.push({type:"foam_node",...nd});
+          }
+          grid.push(row);
+        }
+        for(let ly=0;ly<layers;ly++){
+          for(let nx=0;nx<cols;nx++){
+            const c=grid[ly][nx];
+            if(nx+1<cols){const nh=grid[ly][nx+1],st=createBondCylinder(c.bp,nh.bp,0.11,0x94a3b8);materialGroup.add(st);matObjs.push({type:"foam_strut",m:st,n1:c,n2:nh});}
+            if(ly+1<layers){const nv=grid[ly+1][nx],st=createBondCylinder(c.bp,nv.bp,0.08,0x38bdf8,0.72);materialGroup.add(st);matObjs.push({type:"foam_strut",m:st,n1:c,n2:nv});}
+          }
+        }
+
+      }else if(id===2){
+        // 3. Diamond Tetrahedral Lattice (3D Carbon + Bonds)
+        const cMat=new THREE.MeshStandardMaterial({color:0x38bdf8,emissive:0x0369a1,emissiveIntensity:0.25,metalness:0.4});
+        const pos=[];
+        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
+          pos.push(new THREE.Vector3(x*3.2,y*3.2,z*3.2));
+          if(x<1&&y<1&&z<1)pos.push(new THREE.Vector3(x*3.2+1.6,y*3.2+1.6,z*3.2+1.6));
+        }
+        const nodes=pos.map((p,idx)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(0.55,18,18),cMat);m.position.copy(p);materialGroup.add(m);const o={type:"dia",m,bp:p.clone(),idx};matObjs.push(o);return o;});
+        for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const d=nodes[i].bp.distanceTo(nodes[j].bp);if(d>2.0&&d<3.6)materialGroup.add(createBondCylinder(nodes[i].bp,nodes[j].bp,0.1,0xe0f2fe,0.85));}
+
+      }else if(id===3){
+        // 4. Ice Crystal Hexagonal H-Bond Network
+        const wn=[];
+        for(let r=0;r<2;r++){const zl=(r-0.5)*4.2;for(let i=0;i<6;i++){
+          const a=i/6*Math.PI*2,p=new THREE.Vector3(Math.cos(a)*4.2,Math.sin(a)*4.2,zl),h2o=new THREE.Group();
+          const om=new THREE.Mesh(new THREE.SphereGeometry(0.64,18,18),matO),h1=new THREE.Mesh(new THREE.SphereGeometry(0.36,14,14),matH),h2=h1.clone();
+          h1.position.set(0.75,0.55,0.2);h2.position.set(-0.75,0.55,-0.2);
+          h2o.add(om,h1,h2,createBondCylinder(new THREE.Vector3(0,0,0),h1.position,0.09,0xf8fafc),createBondCylinder(new THREE.Vector3(0,0,0),h2.position,0.09,0xf8fafc));
+          h2o.position.copy(p);materialGroup.add(h2o);const nd={type:"ice",g:h2o,bp:p.clone(),ph:i+r*2};wn.push(nd);matObjs.push(nd);
+          if(r===0){const bp=new THREE.Vector3(Math.cos(a)*7.6,Math.sin(a)*7.6,0),bm=h2o.clone();bm.position.copy(bp);materialGroup.add(bm);matObjs.push({type:"ice",g:bm,bp,ph:i+5});materialGroup.add(createBondCylinder(p,bp,0.07,0x38bdf8,0.6));}
+        }}
+        for(let r=0;r<2;r++)for(let i=0;i<6;i++)materialGroup.add(createBondCylinder(wn[r*6+i].bp,wn[r*6+((i+1)%6)].bp,0.08,0x38bdf8,0.65));
+        for(let i=0;i<6;i++)materialGroup.add(createBondCylinder(wn[i].bp,wn[i+6].bp,0.08,0x38bdf8,0.65));
+
+      }else if(id===4){
+        // 5. Nitinol B2 Superlattice with Dynamic Shear Bonds
+        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
+          const tp=new THREE.Vector3(x*3.4,y*3.4,z*3.4),tm=new THREE.Mesh(new THREE.SphereGeometry(0.65,18,18),matTi);
+          tm.position.copy(tp);materialGroup.add(tm);matObjs.push({type:"niti",m:tm,bp:tp.clone(),ly:y});
+          if(x<1&&y<1&&z<1){
+            const np=new THREE.Vector3(x*3.4+1.7,y*3.4+1.7,z*3.4+1.7),nm=new THREE.Mesh(new THREE.SphereGeometry(0.55,18,18),matNi);
+            nm.position.copy(np);materialGroup.add(nm);matObjs.push({type:"niti",m:nm,bp:np.clone(),ly:y+0.5});
+            for(let dx=0;dx<=1;dx++)for(let dy=0;dy<=1;dy++)for(let dz=0;dz<=1;dz++){
+              const cor=new THREE.Vector3((x+dx)*3.4,(y+dy)*3.4,(z+dz)*3.4),bd=createBondCylinder(np,cor,0.07,0x94a3b8,0.6);
+              materialGroup.add(bd);matObjs.push({type:"niti_b",m:bd,p1:np.clone(),p2:cor.clone(),y1:y+0.5,y2:y+dy});
+            }
+          }
+        }
+
+      }else if(id===5){
+        // 6. Silica Aerogel 3D Nanoporous Web + Comet Dust Particle
+        const ag=new THREE.Group(),am=new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:0.55}),pn=[];
+        for(let i=0;i<44;i++){const p=new THREE.Vector3((Math.random()-0.5)*11,(Math.random()-0.5)*11,(Math.random()-0.5)*7),m=new THREE.Mesh(new THREE.SphereGeometry(0.28,10,10),am);m.position.copy(p);ag.add(m);pn.push(p);}
+        for(let i=0;i<pn.length;i++)for(let j=i+1;j<pn.length;j++)if(pn[i].distanceTo(pn[j])<3.2)ag.add(createBondCylinder(pn[i],pn[j],0.05,0x67e8f9,0.45));
+        materialGroup.add(ag);
+        const dust=new THREE.Mesh(new THREE.SphereGeometry(0.55,14,14),new THREE.MeshStandardMaterial({color:0xf59e0b,emissive:0xd97706}));dust.position.set(-8,3,2);materialGroup.add(dust);
+        matObjs.push({type:"aero",dust,ag});
+
+      }else if(id===6){
+        // 7. YBCO Superconductor Perovskite + Levitating Magnet + Flux Ring
+        const yg=new THREE.Group(),cm=new THREE.MeshStandardMaterial({color:0x06b6d4}),ym=new THREE.MeshStandardMaterial({color:0xfacc15}),om=new THREE.MeshStandardMaterial({color:0xef4444});
+        for(let l=-2;l<=2;l++)for(let x=-2;x<=2;x++)for(let z=-2;z<=2;z++){const a=new THREE.Mesh(new THREE.SphereGeometry((x+z)%2===0?0.42:0.32,12,12),(x+z)%2===0?cm:(l===0?ym:om));a.position.set(x*1.8,l*1.8,z*1.8);yg.add(a);}
+        materialGroup.add(yg);
+        const mag=new THREE.Mesh(new THREE.BoxGeometry(2.4,2.4,2.4),new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.85}));mag.position.y=7.5;
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(3.2,0.05,10,32),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.6}));ring.position.y=7.5;ring.rotation.x=Math.PI/2;
+        materialGroup.add(mag,ring);matObjs.push({type:"ybco",mag,ring,yg});
+
+      }else{
+        // 8. 2nm GAAFET Silicon Nanosheet Transistor + Flowing Electron Packets
+        const cg=new THREE.Group(),nsM=new THREE.MeshStandardMaterial({color:0x0284c7,metalness:0.6}),gtM=new THREE.MeshStandardMaterial({color:0xf59e0b,transparent:true,opacity:0.55}),ctM=new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.8});
+        const src=new THREE.Mesh(new THREE.BoxGeometry(2.2,5,5),ctM);src.position.x=-4.5;
+        const drn=new THREE.Mesh(new THREE.BoxGeometry(2.2,5,5),ctM);drn.position.x=4.5;cg.add(src,drn);
+        for(let ns=-1;ns<=1;ns++){const sh=new THREE.Mesh(new THREE.BoxGeometry(7,0.55,3.5),nsM);sh.position.y=ns*1.5;cg.add(sh);}
+        cg.add(new THREE.Mesh(new THREE.BoxGeometry(3,5.5,4.2),gtM));
+        const pkts=[];for(let k=0;k<15;k++){const p=new THREE.Mesh(new THREE.SphereGeometry(0.22,10,10),new THREE.MeshBasicMaterial({color:0x38bdf8}));p.position.set((Math.random()-0.5)*6,((k%3)-1)*1.5,(Math.random()-0.5)*2.5);cg.add(p);pkts.push(p);}
+        materialGroup.add(cg);matObjs.push({type:"chip",cg,pkts});
+      }
     }
 
     function matchesFilter(el){if(state.categoryFilter!=="all"&&el.catKey!==state.categoryFilter)return false;if(state.sectorFilter!=="all"&&el.sectorKey!==state.sectorFilter)return false;if(state.searchQuery.trim()!==""){const q=state.searchQuery.toLowerCase();return el.sym.toLowerCase().includes(q)||el.nameEn.toLowerCase().includes(q)||el.nameTh.toLowerCase().includes(q)||String(el.z)===q;}return true;}
@@ -459,7 +600,7 @@
     document.getElementById("tabBtnMaterials").addEventListener("click",()=>setMode("materials"));
     document.getElementById("btnFocusAtom3D").addEventListener("click",()=>setMode("atom"));
     document.getElementById("btnResetCamera").addEventListener("click",resetCam);
-    document.getElementById("btnToggleSound").addEventListener("click",e=>{state.soundEnabled=!state.soundEnabled;applyStaticTranslations();});
+    document.getElementById("btnToggleSound").addEventListener("click",()=>{state.soundEnabled=!state.soundEnabled;applyStaticTranslations();});
     document.querySelectorAll(".layout-btn").forEach(b=>b.addEventListener("click",()=>{state.tableLayout=b.getAttribute("data-layout");updateTableTargets();resetCam();}));
     document.getElementById("btnModelBohr").addEventListener("click",()=>{state.atomModel="bohr";document.getElementById("quantumOrbitalSelect").classList.add("hidden");buildAtom(ELEMENTS[state.selectedZ-1]);});
     document.getElementById("btnModelQuantum").addEventListener("click",()=>{state.atomModel="quantum";document.getElementById("quantumOrbitalSelect").classList.remove("hidden");buildAtom(ELEMENTS[state.selectedZ-1]);});
@@ -484,7 +625,21 @@
       if(state.mode==="atom"){if(state.atomModel==="bohr"){nucParts.forEach(p=>p.position.lerp(state.nucleusExploded?p.userData.ep:p.userData.bp,0.08));orbList.forEach(o=>o.h.rotation.z+=0.014*o.sp*state.atomSpeed);}else if(qCloud){qCloud.rotation.y=el*0.3;}}
       if(state.mode==="reaction"&&state.isReacting){const p=Math.min(1,(performance.now()-state.reactionStartTime)/2000);rxObjs.forEach(o=>{if(p<0.5){o.r1.position.x=-5*(1-p*2);o.r2.position.x=5*(1-p*2);}else{o.r1.scale.setScalar(0.001);o.r2.scale.setScalar(0.001);o.p1.scale.setScalar((p-0.5)*2);}});}
       if(state.mode==="materials"){const pa=(performance.now()-state.materialPulseTime)/1000,pf=(pa>=0&&pa<3)?Math.sin(pa/3*Math.PI)*0.6:0,tf=Math.min(1,state.materialParam/100+pf);
-        matObjs.forEach(o=>{if(o.type==="foam"){o.m.position.y=o.bp.y*(1-tf*0.55);}else{o.m.position.x=o.bp.x+o.y*tf*1.2;}});}
+        matObjs.forEach(o=>{
+          if(o.type==="o2c"){o.g.rotation.y=el*0.45;}
+          else if(o.type==="o3b"){o.g.rotation.y=-el*0.35;o.g.position.y=5.2+Math.sin(el*2)*0.2;}
+          else if(o.type==="o2g"){o.g.position.lerp(new THREE.Vector3().lerpVectors(o.bp,o.ap,tf),0.08);}
+          else if(o.type==="foam_node"){const cf=1-Math.abs(o.col-2.5)/3.5;o.g.position.y+=(o.bp.y*(1-tf*0.58*cf)-tf*1.4*cf-o.g.position.y)*0.06;o.g.position.x+=(o.bp.x*(1+tf*0.14*cf)-o.g.position.x)*0.06;}
+          else if(o.type==="foam_strut"){const p1=o.n1.g.position,p2=o.n2.g.position,dir=new THREE.Vector3().subVectors(p2,p1),len=dir.length();o.m.position.addVectors(p1,p2).multiplyScalar(0.5);o.m.scale.set(1,len/o.n1.bp.distanceTo(o.n2.bp),1);o.m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());}
+          else if(o.type==="dia"){const w=Math.sin(el*4+o.idx*0.5)*(0.04+tf*0.2);o.m.position.set(o.bp.x+w,o.bp.y+w*0.7,o.bp.z-w*0.5);}
+          else if(o.type==="ice"){const j=tf*0.5;o.g.position.set(o.bp.x+Math.sin(el*5+o.ph)*j,o.bp.y+Math.cos(el*4+o.ph)*j,o.bp.z);}
+          else if(o.type==="niti"){const sh=o.ly*tf*1.45;o.m.position.set(o.bp.x+sh,o.bp.y-Math.abs(sh)*0.12,o.bp.z);}
+          else if(o.type==="niti_b"){const a=new THREE.Vector3(o.p1.x+o.y1*tf*1.45,o.p1.y-Math.abs(o.y1*tf*1.45)*0.12,o.p1.z),b=new THREE.Vector3(o.p2.x+o.y2*tf*1.45,o.p2.y-Math.abs(o.y2*tf*1.45)*0.12,o.p2.z),dir=new THREE.Vector3().subVectors(b,a),len=dir.length();o.m.position.addVectors(a,b).multiplyScalar(0.5);o.m.scale.set(1,len/o.p1.distanceTo(o.p2),1);o.m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());}
+          else if(o.type==="aero"){const t=(el*(1+tf*2))%4;o.dust.position.set(t<2?-8+t*2.25:-3.5,t<2?3-t*0.9:1.2,t<2?2-t*0.6:0.8);o.ag.rotation.y=el*0.08;}
+          else if(o.type==="ybco"){const lh=5.2+(1-tf*0.8)*3.6+Math.sin(el*3)*0.2;o.mag.position.y=lh;o.mag.rotation.y=el*0.8;o.ring.position.y=lh;o.yg.rotation.y=el*0.1;}
+          else if(o.type==="chip"){o.pkts.forEach(p=>{p.position.x+=0.08+tf*0.22;if(p.position.x>3.8)p.position.x=-3.8;});o.cg.rotation.y=Math.sin(el*0.5)*0.2;}
+        });
+      }
       renderer.render(scene,camera);
     }
     window.addEventListener("load",()=>{resize();applyStaticTranslations();animate();});
