@@ -82,7 +82,7 @@
               <button id="btnToggleNucleusExplode" class="px-2 py-1 rounded text-[11px] bg-slate-800 text-amber-300 border border-amber-500/30">แยกนิวเคลียส</button>
             </div>
             <div id="reaction3DSubBtns" class="hidden flex items-center gap-2">
-              <button id="btnTriggerReaction" class="px-3 py-1 rounded text-[11px] font-bold bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950">⚡ สั่งทำปฏิกิริยา</button>
+              <button id="btnTriggerReaction" class="px-3 py-1 rounded text-[11px] font-bold bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 shadow-lg shadow-rose-500/20">⚡ สั่งทำปฏิกิริยา</button>
               <button id="btnResetReaction" class="px-2.5 py-1 rounded text-[11px] bg-slate-800 text-slate-300 border border-slate-700">🔄 รีเซ็ต</button>
             </div>
             <div id="material3DSubBtns" class="hidden flex items-center gap-2">
@@ -107,7 +107,7 @@
 
       <!-- Reactions Bar -->
       <div id="reactionsContainer" class="hidden glass-panel rounded-2xl p-3 border border-slate-800/90">
-        <div id="rxBarTitle" class="text-xs font-bold text-amber-400 mb-2">💥 5 ปฏิกิริยาเคมี 3 มิติ</div>
+        <div id="rxBarTitle" class="text-xs font-bold text-amber-400 mb-2">💥 5 ปฏิกิริยาเคมี 3 มิติ (คลิกเลือกปฏิกิริยา แล้วกด '⚡ สั่งทำปฏิกิริยา' ด้านบน)</div>
         <div id="rxGridBtns" class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-5 gap-2"></div>
       </div>
 
@@ -178,14 +178,15 @@
         </div>
       </div>
 
+      <!-- Active Showcase OR Active Reaction Deep-Dive Panel -->
       <div class="glass-panel rounded-2xl p-4 border border-slate-800/90 flex-1 flex flex-col justify-between gap-2">
         <div>
           <div class="flex justify-between items-center mb-1"><span id="showcaseBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300"></span><span id="showcaseFormula" class="text-xs font-mono text-amber-300"></span></div>
           <h3 id="showcaseTitle" class="text-sm font-bold text-white"></h3>
           <p id="showcaseDescription" class="text-xs text-slate-300 mt-1.5 leading-relaxed"></p>
-          <ul id="showcaseBullets" class="text-[11px] text-slate-300 space-y-1 list-disc pl-4 mt-2 bg-slate-900/90 p-2.5 rounded-xl border border-slate-800"></ul>
+          <ul id="showcaseBullets" class="text-[11px] text-slate-300 space-y-1.5 list-disc pl-4 mt-2 bg-slate-900/90 p-2.5 rounded-xl border border-slate-800"></ul>
         </div>
-        <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
+        <div id="showcaseNavFooter" class="pt-2 border-t border-slate-800 flex justify-between items-center">
           <button id="btnPrevShowcase" class="px-3 py-1 rounded-lg bg-slate-800 text-xs text-slate-200">← Prev</button>
           <span id="showcaseCounter" class="text-[11px] text-slate-400">2 / 8</span>
           <button id="btnNextShowcase" class="px-3 py-1 rounded-lg bg-cyan-500 text-xs font-bold text-slate-950">Next →</button>
@@ -288,12 +289,98 @@
       {id:6,badge_th:"ชิ้นที่ 7 • ตัวนำยิ่งยวด",badge_en:"#7 • Superconductor",short_th:"ตัวนำยิ่งยวด",short_en:"YBCO Levitation",formula:"YBa₂Cu₃O₇",title_th:"YBCO & Meissner Effect",title_en:"YBCO High-Tc Superconductor & Meissner Effect",desc_th:"ระนาบ CuO₂ นำไฟฟ้าไร้ความต้านทาน ทำให้แม่เหล็กลอยตัวควอนตัมเหนือผลึกเพอรอฟสไกต์",desc_en:"Stacked CuO₂ perovskite planes repelling & pinning magnetic flux for quantum levitation.",param_th:"ความสูงลอยตัว:",param_en:"Levitation Height:",b_th:["ทำงานเหนือ 93 K","วงแหวนฟลักซ์แม่เหล็กควอนตัม"],b_en:["Operates above 93 K","Quantum flux-pinned levitation"],primaryZ:39},
       {id:7,badge_th:"ชิ้นที่ 8 • ชิป AI 2nm",badge_en:"#8 • 2nm AI Chip",short_th:"ชิป AI GAAFET",short_en:"2nm AI Chip",formula:"Si + HfO₂ GAAFET",title_th:"ทรานซิสเตอร์ชิป AI ยุคใหม่",title_en:"2nm Monocrystalline Si GAAFET Transistor",desc_th:"แผ่นนาโนชีตซิลิคอน 3 ชั้นล้อมรอบด้วยเกต HfO₂ เร่งความเร็วกระแสอิเล็กตรอนประมวลผล AI",desc_en:"3 stacked silicon nanosheet channels wrapped by HfO₂ gate-all-around dielectric.",param_th:"แรงดันเกต:",param_en:"Gate Voltage:",b_th:["3 ช่องทางเดินอิเล็กตรอน Si","ลดการรั่วไหลระดับ 2 นาโนเมตร"],b_en:["3 stacked Si nanosheet channels","Controls 2nm quantum tunneling"],primaryZ:14}
     ];
+
     const REACTIONS = [
-      {id:0,title_th:"2H₂ + O₂ → 2H₂O",title_en:"2H₂ + O₂ → 2H₂O",sub_th:"เชื้อเพลิงจรวด",sub_en:"Rocket Propellant"},
-      {id:1,title_th:"สังเคราะห์เมมโมรี่โฟม",title_en:"Polyurethane Synthesis",sub_th:"Polyurethane",sub_en:"Memory Foam"},
-      {id:2,title_th:"N₂ + 3H₂ ⇌ 2NH₃",title_en:"N₂ + 3H₂ ⇌ 2NH₃",sub_th:"ฮาเบอร์-บอช ปุ๋ย",sub_en:"Haber-Bosch"},
-      {id:3,title_th:"CH₄ + 2O₂ → CO₂+2H₂O",title_en:"CH₄ + 2O₂ → CO₂+2H₂O",sub_th:"จรวด Methalox",sub_en:"Methalox Engine"},
-      {id:4,title_th:"SiO₂ + 2C → Si + 2CO",title_en:"SiO₂ + 2C → Si + 2CO",sub_th:"ถลุงซิลิคอนชิป AI",sub_en:"Silicon Reduction"}
+      {
+        id:0,
+        title_th:"2H₂ + O₂ → 2H₂O", title_en:"2H₂ + O₂ → 2H₂O",
+        sub_th:"เชื้อเพลิงจรวด", sub_en:"Rocket Propellant",
+        eq:"2H₂ + O₂ → 2H₂O (ΔH = -483.6 kJ)",
+        desc_th:"โมเลกุล H₂ (ขาว) 2 คู่พุ่งชน O₂ (แดง) ด้วยความร้อน/ประกายไฟ แตกพันธะเดิมแล้วจับตัวเป็นโมเลกุลน้ำ H₂O มุม 104.5° ที่สั่นสะเทือนตามพลังงานความร้อน",
+        desc_en:"Two H₂ pairs collide with O₂ upon ignition, breaking bonds and forming two bent 104.5° H₂O molecules vibrating with thermal energy.",
+        b_th:[
+          "<b>วิธีทำ & เครื่องมือ:</b> ห้องเผาไหม้จรวดเชื้อเพลิงเหลว (Cryogenic Rocket Engine) หรือเซลล์เชื้อเพลิง (PEM Fuel Cell); เกิดตามธรรมชาติได้จากประกายไฟ/ฟ้าผ่า",
+          "<b>สิ่งที่สังเกตเห็น:</b> เปลวไฟร้อนแรง ไอน้ำพวยพุ่ง และแรงขับดันมหาศาล",
+          "<b>การมองเห็นระดับอะตอม:</b> เล็กเกินกว่ากล้องแสงจะเห็น (~0.1 nm) จึงจำลองด้วย Molecular Dynamics (MD) + ตรวจวัดความถี่การสั่นด้วยสเปกโทรสโกปี (IR)"
+        ],
+        b_en:[
+          "<b>Process & Tools:</b> Cryogenic Rocket Engine or PEM Fuel Cell; occurs naturally via sparks/lightning.",
+          "<b>Macro Observation:</b> Intense flame, steam plume, and massive thrust.",
+          "<b>Atomic Visibility:</b> Too small for optical microscopes (~0.1 nm); computed via Molecular Dynamics (MD) & verified by IR spectroscopy."
+        ]
+      },
+      {
+        id:1,
+        title_th:"สังเคราะห์เมมโมรี่โฟม", title_en:"Polyurethane Synthesis",
+        sub_th:"Polyurethane Network", sub_en:"Memory Foam Matrix",
+        eq:"Diisocyanate + Polyol → Polyurethane Network",
+        desc_th:"ไอโซไซยาเนต (-N=C=O) ชนกับพอลิออล (-OH) เกิดเป็นโครงข่ายพอลิเมอร์ 3 มิติที่มีเส้นพันธะเชื่อมโยงกันและสั่นยืดหยุ่นได้ (ไม่สามารถเกิดเองตามธรรมชาติ)",
+        desc_en:"Diisocyanate collides with Polyol to cross-link into a 3D vibrating viscoelastic polyurethane network (purely synthetic).",
+        b_th:[
+          "<b>วิธีทำ & เครื่องมือ:</b> หัวฉีดผสมแรงดันสูง (High-Pressure Foam Mixing Head) และแม่พิมพ์ควบคุมอุณหภูมิ (ไม่เกิดเองตามธรรมชาติ)",
+          "<b>สิ่งที่สังเกตเห็น:</b> ของเหลว 2 ชนิดฟูขยายตัวเป็นโฟมเนื้อนุ่มและปล่อยก๊าซ CO₂ สร้างโพรงเซลล์เปิด",
+          "<b>การมองเห็นระดับอะตอม:</b> ตรวจจับโครงสร้างหมู่ยูรีเทนด้วยเครื่อง FTIR และจำลองความหนืดยืดหยุ่นด้วยคอมพิวเตอร์"
+        ],
+        b_en:[
+          "<b>Process & Tools:</b> High-pressure impingement mixing head & heated molds (strictly synthetic).",
+          "<b>Macro Observation:</b> Rapid foaming expansion & heat release forming open-cell cushions.",
+          "<b>Atomic Visibility:</b> Bond vibrations measured by FTIR spectroscopy; chain mechanics modeled via MD."
+        ]
+      },
+      {
+        id:2,
+        title_th:"N₂ + 3H₂ ⇌ 2NH₃", title_en:"N₂ + 3H₂ ⇌ 2NH₃",
+        sub_th:"ฮาเบอร์-บอช ปุ๋ย", sub_en:"Haber-Bosch Fertilizer",
+        eq:"N₂ + 3H₂ ⇌ 2NH₃ (Fe Catalyst, 200 atm)",
+        desc_th:"ก๊าซ N₂ พันธะสามพุ่งชน 3H₂ บนพื้นผิวตัวเร่งปฏิกิริยาเหล็ก (แผ่นสีส้มด้านล่าง) เพื่อแตกพันธะแล้วรวมเป็นโมเลกุลแอมโมเนีย NH₃ ทรงพีระมิด",
+        desc_en:"Triple-bonded N₂ and three H₂ molecules collide on an Iron (Fe) catalyst plate to form two pyramidal NH₃ molecules.",
+        b_th:[
+          "<b>วิธีทำ & เครื่องมือ:</b> ถังปฏิกรณ์ความดันสูง 200 atm อุณหภูมิ 450°C ใช้ตัวเร่งเหล็ก (Fe); ในธรรมชาติเกิดจากฟ้าผ่าและแบคทีเรียไรโซเบียมในปมรากถั่ว",
+          "<b>สิ่งที่สังเกตเห็น:</b> กลิ่นฉุนของก๊าซแอมโมเนียและความดันลดลงเมื่อก๊าซรวมตัวกัน",
+          "<b>การมองเห็นระดับอะตอม:</b> ศึกษาการเกาะบนผิวเหล็กด้วยกล้องจุลทรรศน์อุโมงค์สแกน (STM) และการคำนวณ DFT"
+        ],
+        b_en:[
+          "<b>Process & Tools:</b> 200 atm / 450°C Haber-Bosch reactor with Fe catalyst; naturally done by lightning & Rhizobium bacteria.",
+          "<b>Macro Observation:</b> Pungent ammonia gas & pressure drop in vessel.",
+          "<b>Atomic Visibility:</b> Surface adsorption imaged via Scanning Tunneling Microscopy (STM) & DFT calculations."
+        ]
+      },
+      {
+        id:3,
+        title_th:"CH₄ + 2O₂ → CO₂+2H₂O", title_en:"CH₄ + 2O₂ → CO₂+2H₂O",
+        sub_th:"จรวด Methalox", sub_en:"Methalox Rocket",
+        eq:"CH₄ + 2O₂ → CO₂ + 2H₂O (ΔH = -890 kJ)",
+        desc_th:"โมเลกุลมีเทนทรงสี่หน้า CH₄ ชนกับ 2O₂ เกิดการเผาไหม้คายพลังงานสูง แตกตัวเป็น CO₂ เส้นตรงและไอน้ำ 2H₂O ที่สั่นสะเทือนรุนแรง",
+        desc_en:"Tetrahedral CH₄ collides with two O₂ molecules, combusting into linear CO₂ and two vibrating H₂O molecules.",
+        b_th:[
+          "<b>วิธีทำ & เครื่องมือ:</b> เครื่องยนต์จรวด Methalox (เช่น SpaceX Raptor) หรือหัวเตาแก๊ส; เกิดตามธรรมชาติในไฟป่าและแก๊สธรรมชาติใต้พิภพ",
+          "<b>สิ่งที่สังเกตเห็น:</b> เปลวไฟสีฟ้าสว่างจ้า ความร้อนสูง และแรงดันไอเสีย",
+          "<b>การมองเห็นระดับอะตอม:</b> คำนวณจลนศาสตร์เคมี (Chemical Kinetics) ในซุปเปอร์คอมพิวเตอร์เพราะเกิดในระดับเฟมโตวินาที (10⁻¹⁵ s)"
+        ],
+        b_en:[
+          "<b>Process & Tools:</b> Methalox rocket engine (e.g. Raptor) or gas burner; naturally occurs in wildfires.",
+          "<b>Macro Observation:</b> Bright blue flame, intense heat, and exhaust thrust.",
+          "<b>Atomic Visibility:</b> Reactions happen in femtoseconds (10⁻¹⁵ s), requiring ultrafast laser spectroscopy & computational models."
+        ]
+      },
+      {
+        id:4,
+        title_th:"SiO₂ + 2C → Si + 2CO", title_en:"SiO₂ + 2C → Si + 2CO",
+        sub_th:"ถลุงซิลิคอนชิป AI", sub_en:"Silicon Reduction",
+        eq:"SiO₂ + 2C → Si + 2CO (1,900°C Arc Furnace)",
+        desc_th:"ทรายควอตซ์ SiO₂ ชนกับคาร์บอน 2 อะตอมที่อุณหภูมิสูงจัด ดึงออกซิเจนออกไปเป็น CO เหลือผลึกซิลิคอนบริสุทธิ์ทรงลูกบาศก์เชื่อมต่อกัน",
+        desc_en:"Quartz (SiO₂) reacts with 2 Carbon atoms at 1,900°C, stripping oxygen into CO gas and leaving a pure Silicon crystal lattice.",
+        b_th:[
+          "<b>วิธีทำ & เครื่องมือ:</b> เตาอาร์กไฟฟ้า 1,900°C (Submerged Electric Arc Furnace) ตามด้วยวิธี Czochralski ดึงผลึกเดี่ยวบริสุทธิ์ 9N (ไม่เกิดเองตามธรรมชาติ)",
+          "<b>สิ่งที่สังเกตเห็น:</b> แสงอาร์กไฟฟ้าจ้า น้ำซิลิคอนหลอมเหลวสีเงินวาว และฟองก๊าซ CO",
+          "<b>การมองเห็นระดับอะตอม:</b> ตรวจสอบความสมบูรณ์ของผลึกด้วย X-Ray Diffraction (XRD) และกล้องจุลทรรศน์อิเล็กตรอน TEM"
+        ],
+        b_en:[
+          "<b>Process & Tools:</b> 1,900°C Electric Arc Furnace + Czochralski crystal puller for 9N purity (purely industrial).",
+          "<b>Macro Observation:</b> Brilliant electric arc, molten silvery silicon, and CO off-gas.",
+          "<b>Atomic Visibility:</b> Crystal perfection verified via X-Ray Diffraction (XRD) & Transmission Electron Microscopy (TEM)."
+        ]
+      }
     ];
 
     let lang="th";
@@ -356,10 +443,77 @@
       }
     }
 
-    let rxObjs=[];
-    function buildReaction(){while(reactionGroup.children.length)reactionGroup.remove(reactionGroup.children[0]);rxObjs=[];
-      const r1=new THREE.Mesh(new THREE.SphereGeometry(0.9,18,18),new THREE.MeshStandardMaterial({color:0x38bdf8})),r2=new THREE.Mesh(new THREE.SphereGeometry(1.1,18,18),new THREE.MeshStandardMaterial({color:0xf43f5e})),p1=new THREE.Mesh(new THREE.SphereGeometry(1.3,20,20),new THREE.MeshStandardMaterial({color:0x10b981}));
-      r1.position.set(-5,0,0);r2.position.set(5,0,0);p1.scale.set(0.001,0.001,0.001);reactionGroup.add(r1,r2,p1);rxObjs.push({r1,r2,p1});
+    // 5 DISTINCT 3D CHEMICAL REACTIONS WITH MULTI-ATOM REACTANTS, PRODUCTS & ENERGY BURST
+    let rxReactants=[],rxProducts=[],rxBurst=null;
+    function makeMol(type){
+      const g=new THREE.Group();
+      const mH=new THREE.MeshStandardMaterial({color:0xf8fafc}),mO=new THREE.MeshStandardMaterial({color:0xef4444}),mN=new THREE.MeshStandardMaterial({color:0x3b82f6}),mC=new THREE.MeshStandardMaterial({color:0x64748b}),mSi=new THREE.MeshStandardMaterial({color:0x0ea5e9});
+      if(type==="H2"){
+        const a=new THREE.Mesh(new THREE.SphereGeometry(0.4,12,12),mH),b=a.clone();a.position.x=-0.45;b.position.x=0.45;g.add(a,b,createBondCylinder(a.position,b.position,0.08,0xf8fafc));
+      }else if(type==="O2"){
+        const a=new THREE.Mesh(new THREE.SphereGeometry(0.8,16,16),mO),b=a.clone();a.position.y=0.8;b.position.y=-0.8;g.add(a,b,createBondCylinder(new THREE.Vector3(-0.18,0.8,0),new THREE.Vector3(-0.18,-0.8,0),0.1,0xfca5a5),createBondCylinder(new THREE.Vector3(0.18,0.8,0),new THREE.Vector3(0.18,-0.8,0),0.1,0xfca5a5));
+      }else if(type==="H2O"){
+        const o=new THREE.Mesh(new THREE.SphereGeometry(0.8,16,16),mO),h1=new THREE.Mesh(new THREE.SphereGeometry(0.42,12,12),mH),h2=h1.clone();
+        h1.position.set(0.95,0.65,0);h2.position.set(-0.95,0.65,0);g.add(o,h1,h2,createBondCylinder(new THREE.Vector3(0,0,0),h1.position,0.1,0xe2e8f0),createBondCylinder(new THREE.Vector3(0,0,0),h2.position,0.1,0xe2e8f0));
+      }else if(type==="N2"){
+        const a=new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16),mN),b=a.clone();a.position.x=-0.8;b.position.x=0.8;g.add(a,b,createBondCylinder(a.position,b.position,0.16,0x93c5fd));
+      }else if(type==="NH3"){
+        const n=new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16),mN);g.add(n);
+        [0,2.1,4.2].forEach(ang=>{const h=new THREE.Mesh(new THREE.SphereGeometry(0.38,12,12),mH);h.position.set(Math.cos(ang)*1.0,-0.6,Math.sin(ang)*1.0);g.add(h,createBondCylinder(new THREE.Vector3(0,0,0),h.position,0.09,0xe2e8f0));});
+      }else if(type==="CH4"){
+        const c=new THREE.Mesh(new THREE.SphereGeometry(0.7,16,16),mC);g.add(c);
+        [[1,1,1],[-1,-1,1],[-1,1,-1],[1,-1,-1]].forEach(([x,y,z])=>{const h=new THREE.Mesh(new THREE.SphereGeometry(0.36,12,12),mH);h.position.set(x*0.7,y*0.7,z*0.7);g.add(h,createBondCylinder(new THREE.Vector3(0,0,0),h.position,0.08,0xf8fafc));});
+      }else if(type==="CO2"){
+        const c=new THREE.Mesh(new THREE.SphereGeometry(0.7,16,16),mC),o1=new THREE.Mesh(new THREE.SphereGeometry(0.65,16,16),mO),o2=o1.clone();
+        o1.position.x=-1.4;o2.position.x=1.4;g.add(c,o1,o2,createBondCylinder(o1.position,o2.position,0.12,0xfca5a5));
+      }else if(type==="foam_net"){
+        const pts=[];
+        for(let y=0;y<2;y++)for(let x=0;x<4;x++){const n=new THREE.Mesh(new THREE.SphereGeometry(0.5,14,14),(x+y)%2===0?mC:mN);n.position.set((x-1.5)*2.2,(y-0.5)*2.2,Math.sin(x+y));g.add(n);pts.push(n.position);}
+        for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)if(pts[i].distanceTo(pts[j])<2.8)g.add(createBondCylinder(pts[i],pts[j],0.08,0x38bdf8,0.8));
+      }else if(type==="SiO2"){
+        const s=new THREE.Mesh(new THREE.SphereGeometry(0.85,16,16),mSi),o1=new THREE.Mesh(new THREE.SphereGeometry(0.6,14,14),mO),o2=o1.clone();
+        o1.position.set(-1.3,0.4,0);o2.position.set(1.3,-0.4,0);g.add(s,o1,o2,createBondCylinder(o1.position,new THREE.Vector3(0,0,0),0.1,0xfca5a5),createBondCylinder(o2.position,new THREE.Vector3(0,0,0),0.1,0xfca5a5));
+      }else if(type==="SiLattice"){
+        const pts=[];
+        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++){const s=new THREE.Mesh(new THREE.SphereGeometry(0.5,14,14),mSi);s.position.set(x*1.8,y*1.8,(x+y)%2*0.8);g.add(s);pts.push(s.position);}
+        for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)if(pts[i].distanceTo(pts[j])<2.5)g.add(createBondCylinder(pts[i],pts[j],0.08,0x38bdf8,0.85));
+      }else if(type==="CO"){
+        const c=new THREE.Mesh(new THREE.SphereGeometry(0.55,14,14),mC),o=new THREE.Mesh(new THREE.SphereGeometry(0.6,14,14),mO);c.position.x=-0.6;o.position.x=0.6;g.add(c,o,createBondCylinder(c.position,o.position,0.12,0x94a3b8));
+      }else{
+        // C atom
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(0.6,14,14),mC));
+      }
+      return g;
+    }
+
+    function buildReaction(idx){
+      while(reactionGroup.children.length)reactionGroup.remove(reactionGroup.children[0]);
+      rxReactants=[];rxProducts=[];
+      // Energy reaction zone ring
+      const ring=new THREE.Mesh(new THREE.RingGeometry(3.2,3.4,32),new THREE.MeshBasicMaterial({color:0xf59e0b,transparent:true,opacity:0.3,side:THREE.DoubleSide}));
+      ring.rotation.x=Math.PI/2;reactionGroup.add(ring);
+
+      const addR=(t,x,y,z)=>{const m=makeMol(t);m.position.set(x,y,z);reactionGroup.add(m);rxReactants.push({m,bp:new THREE.Vector3(x,y,z)});};
+      const addP=(t,x,y,z)=>{const m=makeMol(t);m.position.set(x,y,z);m.scale.setScalar(0.001);reactionGroup.add(m);rxProducts.push({m,tp:new THREE.Vector3(x,y,z)});};
+
+      if(idx===0){addR("H2",-6,1.8,0);addR("H2",-6,-1.8,0);addR("O2",6,0,0);addP("H2O",-2.8,0,0);addP("H2O",2.8,0,0);}
+      else if(idx===1){addR("N2",-5.5,0,0);addR("CH4",5.5,0,0);addP("foam_net",0,0,0);}
+      else if(idx===2){
+        // Fe catalyst bed
+        const cat=new THREE.Mesh(new THREE.BoxGeometry(8,0.4,5),new THREE.MeshStandardMaterial({color:0xd97706,metalness:0.7}));cat.position.y=-2.6;reactionGroup.add(cat);
+        addR("N2",-6,0,0);addR("H2",6,2,0);addR("H2",6,0,0);addR("H2",6,-2,0);addP("NH3",-2.5,0,0);addP("NH3",2.5,0,0);
+      }else if(idx===3){addR("CH4",-6,0,0);addR("O2",6,1.8,0);addR("O2",6,-1.8,0);addP("CO2",0,1.8,0);addP("H2O",-2.8,-1.5,0);addP("H2O",2.8,-1.5,0);}
+      else{
+        const arc=new THREE.Mesh(new THREE.TorusGeometry(4.2,0.12,10,32),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.4}));arc.rotation.x=Math.PI/2;reactionGroup.add(arc);
+        addR("SiO2",-6,0,0);addR("C",6,1.6,0);addR("C",6,-1.6,0);addP("SiLattice",0,-0.5,0);addP("CO",-4.2,2.5,0);addP("CO",4.2,2.5,0);
+      }
+
+      // Exothermic Burst Cloud
+      const bCount=160,bGeo=new THREE.BufferGeometry(),bPos=new Float32Array(bCount*3),bVels=[];
+      for(let i=0;i<bCount;i++){bVels.push(new THREE.Vector3((Math.random()-0.5)*7,(Math.random()-0.5)*7,(Math.random()-0.5)*7));}
+      bGeo.setAttribute("position",new THREE.BufferAttribute(bPos,3));
+      rxBurst=new THREE.Points(bGeo,new THREE.PointsMaterial({color:0xfbbf24,size:0.32,transparent:true,opacity:0}));
+      rxBurst.userData={vels:bVels};reactionGroup.add(rxBurst);
     }
 
     // FULL 3D MULTI-LAYER MATERIALS WITH DYNAMIC BOND CYLINDERS
@@ -367,134 +521,40 @@
     function buildShowcase(id){
       while(materialGroup.children.length)materialGroup.remove(materialGroup.children[0]);
       matObjs=[];
-      const matO=new THREE.MeshStandardMaterial({color:0xef4444,roughness:0.25});
-      const matH=new THREE.MeshStandardMaterial({color:0xf8fafc,roughness:0.2});
-      const matC=new THREE.MeshStandardMaterial({color:0x64748b,roughness:0.35,metalness:0.3});
-      const matN=new THREE.MeshStandardMaterial({color:0x3b82f6,roughness:0.25});
-      const matTi=new THREE.MeshStandardMaterial({color:0x38bdf8,roughness:0.2,metalness:0.75});
-      const matNi=new THREE.MeshStandardMaterial({color:0xa855f7,roughness:0.25,metalness:0.75});
+      const matO=new THREE.MeshStandardMaterial({color:0xef4444,roughness:0.25}),matH=new THREE.MeshStandardMaterial({color:0xf8fafc,roughness:0.2});
+      const matC=new THREE.MeshStandardMaterial({color:0x64748b,roughness:0.35,metalness:0.3}),matN=new THREE.MeshStandardMaterial({color:0x3b82f6,roughness:0.25});
+      const matTi=new THREE.MeshStandardMaterial({color:0x38bdf8,roughness:0.2,metalness:0.75}),matNi=new THREE.MeshStandardMaterial({color:0xa855f7,roughness:0.25,metalness:0.75});
 
       if(id===0){
-        // 1. O2 Double Bond + Lone-Pair Branches + O3 Bent Ozone + Paramagnetic O2 Cluster
-        const cg=new THREE.Group();
-        const o1=new THREE.Mesh(new THREE.SphereGeometry(1.1,24,24),matO),o2=new THREE.Mesh(new THREE.SphereGeometry(1.1,24,24),matO);
-        o1.position.set(-1.35,0,0);o2.position.set(1.35,0,0);cg.add(o1,o2);
-        cg.add(createBondCylinder(new THREE.Vector3(-1.35,0.26,0),new THREE.Vector3(1.35,0.26,0),0.15,0xf8fafc));
-        cg.add(createBondCylinder(new THREE.Vector3(-1.35,-0.26,0),new THREE.Vector3(1.35,-0.26,0),0.15,0x38bdf8));
+        const cg=new THREE.Group(),o1=new THREE.Mesh(new THREE.SphereGeometry(1.1,24,24),matO),o2=o1.clone();
+        o1.position.x=-1.35;o2.position.x=1.35;cg.add(o1,o2,createBondCylinder(new THREE.Vector3(-1.35,0.26,0),new THREE.Vector3(1.35,0.26,0),0.15,0xf8fafc),createBondCylinder(new THREE.Vector3(-1.35,-0.26,0),new THREE.Vector3(1.35,-0.26,0),0.15,0x38bdf8));
         const lpMat=new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.45});
-        [[-1.35,0,0,-2.6,1.3,0.5],[-1.35,0,0,-2.6,-1.3,-0.5],[1.35,0,0,2.6,1.3,-0.5],[1.35,0,0,2.6,-1.3,0.5]].forEach(([x1,y1,z1,x2,y2,z2])=>{
-          const p1=new THREE.Vector3(x1,y1,z1),p2=new THREE.Vector3(x2,y2,z2);
-          cg.add(createBondCylinder(p1,p2,0.08,0x38bdf8,0.65));
-          const lb=new THREE.Mesh(new THREE.SphereGeometry(0.42,14,14),lpMat);lb.position.copy(p2);cg.add(lb);
-        });
+        [[-1.35,0,0,-2.6,1.3,0.5],[-1.35,0,0,-2.6,-1.3,-0.5],[1.35,0,0,2.6,1.3,-0.5],[1.35,0,0,2.6,-1.3,0.5]].forEach(([x1,y1,z1,x2,y2,z2])=>{const p1=new THREE.Vector3(x1,y1,z1),p2=new THREE.Vector3(x2,y2,z2);cg.add(createBondCylinder(p1,p2,0.08,0x38bdf8,0.65));const lb=new THREE.Mesh(new THREE.SphereGeometry(0.42,14,14),lpMat);lb.position.copy(p2);cg.add(lb);});
         materialGroup.add(cg);matObjs.push({type:"o2c",g:cg});
-
-        const o3=new THREE.Group();o3.position.set(0,5.2,-2);
-        const oa=new THREE.Mesh(new THREE.SphereGeometry(0.88,20,20),matO),ob=oa.clone(),oc=oa.clone();
-        oa.position.set(0,0.8,0);ob.position.set(-1.9,-0.4,0);oc.position.set(1.9,-0.4,0);
-        o3.add(oa,ob,oc,createBondCylinder(oa.position,ob.position,0.14,0xfca5a5),createBondCylinder(oa.position,oc.position,0.14,0xfca5a5));
+        const o3=new THREE.Group();o3.position.set(0,5.2,-2);const oa=new THREE.Mesh(new THREE.SphereGeometry(0.88,20,20),matO),ob=oa.clone(),oc=oa.clone();
+        oa.position.set(0,0.8,0);ob.position.set(-1.9,-0.4,0);oc.position.set(1.9,-0.4,0);o3.add(oa,ob,oc,createBondCylinder(oa.position,ob.position,0.14,0xfca5a5),createBondCylinder(oa.position,oc.position,0.14,0xfca5a5));
         materialGroup.add(o3);matObjs.push({type:"o3b",g:o3});
-
-        for(let i=0;i<12;i++){
-          const mol=new THREE.Group(),s1=new THREE.Mesh(new THREE.SphereGeometry(0.5,14,14),matO),s2=s1.clone();
-          s1.position.x=-0.55;s2.position.x=0.55;mol.add(s1,s2,createBondCylinder(s1.position,s2.position,0.09,0xe2e8f0));
-          const a=i/12*Math.PI*2,r=6.8+(i%3)*2,bp=new THREE.Vector3(Math.cos(a)*r,((i%5)-2)*2,Math.sin(a)*r);
-          mol.position.copy(bp);materialGroup.add(mol);
-          matObjs.push({type:"o2g",g:mol,bp,ap:new THREE.Vector3(((i%6)-2.5)*2.2,(Math.floor(i/6)-0.5)*3,2.5)});
-        }
-
+        for(let i=0;i<12;i++){const mol=new THREE.Group(),s1=new THREE.Mesh(new THREE.SphereGeometry(0.5,14,14),matO),s2=s1.clone();s1.position.x=-0.55;s2.position.x=0.55;mol.add(s1,s2,createBondCylinder(s1.position,s2.position,0.09,0xe2e8f0));const a=i/12*Math.PI*2,r=6.8+(i%3)*2,bp=new THREE.Vector3(Math.cos(a)*r,((i%5)-2)*2,Math.sin(a)*r);mol.position.copy(bp);materialGroup.add(mol);matObjs.push({type:"o2g",g:mol,bp,ap:new THREE.Vector3(((i%6)-2.5)*2.2,(Math.floor(i/6)-0.5)*3,2.5)});}
       }else if(id===1){
-        // 2. Memory Foam 4-Layer 3D Polyurethane Viscoelastic Matrix with Dynamic Bond Struts
         const layers=4,cols=6,grid=[];
-        for(let ly=0;ly<layers;ly++){
-          const row=[],by=(ly-1.5)*3.4;
-          for(let nx=0;nx<cols;nx++){
-            const bx=(nx-2.5)*3.0+(ly%2===0?0.6:-0.6),bz=((nx+ly)%3-1)*2.4;
-            const ug=new THREE.Group(),at=(nx+ly)%3===0?"N":((nx+ly)%3===1?"O":"C");
-            ug.add(new THREE.Mesh(new THREE.SphereGeometry(at==="C"?0.58:0.64,18,18),at==="N"?matN:(at==="O"?matO:matC)));
-            const sd=new THREE.Mesh(new THREE.SphereGeometry(0.32,12,12),at==="N"?matH:matO);sd.position.set(0.55,0.65,0.35);
-            ug.add(sd,createBondCylinder(new THREE.Vector3(0,0,0),sd.position,0.08,0xcbd5e1));
-            ug.position.set(bx,by,bz);materialGroup.add(ug);
-            const nd={g:ug,bp:new THREE.Vector3(bx,by,bz),col:nx};row.push(nd);
-            matObjs.push({type:"foam_node",...nd});
-          }
-          grid.push(row);
-        }
-        for(let ly=0;ly<layers;ly++){
-          for(let nx=0;nx<cols;nx++){
-            const c=grid[ly][nx];
-            if(nx+1<cols){const nh=grid[ly][nx+1],st=createBondCylinder(c.bp,nh.bp,0.11,0x94a3b8);materialGroup.add(st);matObjs.push({type:"foam_strut",m:st,n1:c,n2:nh});}
-            if(ly+1<layers){const nv=grid[ly+1][nx],st=createBondCylinder(c.bp,nv.bp,0.08,0x38bdf8,0.72);materialGroup.add(st);matObjs.push({type:"foam_strut",m:st,n1:c,n2:nv});}
-          }
-        }
-
+        for(let ly=0;ly<layers;ly++){const row=[],by=(ly-1.5)*3.4;for(let nx=0;nx<cols;nx++){const bx=(nx-2.5)*3+(ly%2===0?0.6:-0.6),bz=((nx+ly)%3-1)*2.4,ug=new THREE.Group(),at=(nx+ly)%3===0?"N":((nx+ly)%3===1?"O":"C");ug.add(new THREE.Mesh(new THREE.SphereGeometry(at==="C"?0.58:0.64,18,18),at==="N"?matN:(at==="O"?matO:matC)));const sd=new THREE.Mesh(new THREE.SphereGeometry(0.32,12,12),at==="N"?matH:matO);sd.position.set(0.55,0.65,0.35);ug.add(sd,createBondCylinder(new THREE.Vector3(0,0,0),sd.position,0.08,0xcbd5e1));ug.position.set(bx,by,bz);materialGroup.add(ug);const nd={g:ug,bp:new THREE.Vector3(bx,by,bz),col:nx};row.push(nd);matObjs.push({type:"foam_node",...nd});}grid.push(row);}
+        for(let ly=0;ly<layers;ly++)for(let nx=0;nx<cols;nx++){const c=grid[ly][nx];if(nx+1<cols){const nh=grid[ly][nx+1],st=createBondCylinder(c.bp,nh.bp,0.11,0x94a3b8);materialGroup.add(st);matObjs.push({type:"foam_strut",m:st,n1:c,n2:nh});}if(ly+1<layers){const nv=grid[ly+1][nx],st=createBondCylinder(c.bp,nv.bp,0.08,0x38bdf8,0.72);materialGroup.add(st);matObjs.push({type:"foam_strut",m:st,n1:c,n2:nv});}}
       }else if(id===2){
-        // 3. Diamond Tetrahedral Lattice (3D Carbon + Bonds)
-        const cMat=new THREE.MeshStandardMaterial({color:0x38bdf8,emissive:0x0369a1,emissiveIntensity:0.25,metalness:0.4});
-        const pos=[];
-        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
-          pos.push(new THREE.Vector3(x*3.2,y*3.2,z*3.2));
-          if(x<1&&y<1&&z<1)pos.push(new THREE.Vector3(x*3.2+1.6,y*3.2+1.6,z*3.2+1.6));
-        }
+        const cMat=new THREE.MeshStandardMaterial({color:0x38bdf8,emissive:0x0369a1,emissiveIntensity:0.25,metalness:0.4}),pos=[];
+        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){pos.push(new THREE.Vector3(x*3.2,y*3.2,z*3.2));if(x<1&&y<1&&z<1)pos.push(new THREE.Vector3(x*3.2+1.6,y*3.2+1.6,z*3.2+1.6));}
         const nodes=pos.map((p,idx)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(0.55,18,18),cMat);m.position.copy(p);materialGroup.add(m);const o={type:"dia",m,bp:p.clone(),idx};matObjs.push(o);return o;});
-        for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const d=nodes[i].bp.distanceTo(nodes[j].bp);if(d>2.0&&d<3.6)materialGroup.add(createBondCylinder(nodes[i].bp,nodes[j].bp,0.1,0xe0f2fe,0.85));}
-
+        for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const d=nodes[i].bp.distanceTo(nodes[j].bp);if(d>2&&d<3.6)materialGroup.add(createBondCylinder(nodes[i].bp,nodes[j].bp,0.1,0xe0f2fe,0.85));}
       }else if(id===3){
-        // 4. Ice Crystal Hexagonal H-Bond Network
-        const wn=[];
-        for(let r=0;r<2;r++){const zl=(r-0.5)*4.2;for(let i=0;i<6;i++){
-          const a=i/6*Math.PI*2,p=new THREE.Vector3(Math.cos(a)*4.2,Math.sin(a)*4.2,zl),h2o=new THREE.Group();
-          const om=new THREE.Mesh(new THREE.SphereGeometry(0.64,18,18),matO),h1=new THREE.Mesh(new THREE.SphereGeometry(0.36,14,14),matH),h2=h1.clone();
-          h1.position.set(0.75,0.55,0.2);h2.position.set(-0.75,0.55,-0.2);
-          h2o.add(om,h1,h2,createBondCylinder(new THREE.Vector3(0,0,0),h1.position,0.09,0xf8fafc),createBondCylinder(new THREE.Vector3(0,0,0),h2.position,0.09,0xf8fafc));
-          h2o.position.copy(p);materialGroup.add(h2o);const nd={type:"ice",g:h2o,bp:p.clone(),ph:i+r*2};wn.push(nd);matObjs.push(nd);
-          if(r===0){const bp=new THREE.Vector3(Math.cos(a)*7.6,Math.sin(a)*7.6,0),bm=h2o.clone();bm.position.copy(bp);materialGroup.add(bm);matObjs.push({type:"ice",g:bm,bp,ph:i+5});materialGroup.add(createBondCylinder(p,bp,0.07,0x38bdf8,0.6));}
-        }}
-        for(let r=0;r<2;r++)for(let i=0;i<6;i++)materialGroup.add(createBondCylinder(wn[r*6+i].bp,wn[r*6+((i+1)%6)].bp,0.08,0x38bdf8,0.65));
-        for(let i=0;i<6;i++)materialGroup.add(createBondCylinder(wn[i].bp,wn[i+6].bp,0.08,0x38bdf8,0.65));
-
+        const wn=[];for(let r=0;r<2;r++){const zl=(r-0.5)*4.2;for(let i=0;i<6;i++){const a=i/6*Math.PI*2,p=new THREE.Vector3(Math.cos(a)*4.2,Math.sin(a)*4.2,zl),h2o=new THREE.Group(),om=new THREE.Mesh(new THREE.SphereGeometry(0.64,18,18),matO),h1=new THREE.Mesh(new THREE.SphereGeometry(0.36,14,14),matH),h2=h1.clone();h1.position.set(0.75,0.55,0.2);h2.position.set(-0.75,0.55,-0.2);h2o.add(om,h1,h2,createBondCylinder(new THREE.Vector3(0,0,0),h1.position,0.09,0xf8fafc),createBondCylinder(new THREE.Vector3(0,0,0),h2.position,0.09,0xf8fafc));h2o.position.copy(p);materialGroup.add(h2o);const nd={type:"ice",g:h2o,bp:p.clone(),ph:i+r*2};wn.push(nd);matObjs.push(nd);}}
+        for(let r=0;r<2;r++)for(let i=0;i<6;i++)materialGroup.add(createBondCylinder(wn[r*6+i].bp,wn[r*6+((i+1)%6)].bp,0.08,0x38bdf8,0.65));for(let i=0;i<6;i++)materialGroup.add(createBondCylinder(wn[i].bp,wn[i+6].bp,0.08,0x38bdf8,0.65));
       }else if(id===4){
-        // 5. Nitinol B2 Superlattice with Dynamic Shear Bonds
-        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
-          const tp=new THREE.Vector3(x*3.4,y*3.4,z*3.4),tm=new THREE.Mesh(new THREE.SphereGeometry(0.65,18,18),matTi);
-          tm.position.copy(tp);materialGroup.add(tm);matObjs.push({type:"niti",m:tm,bp:tp.clone(),ly:y});
-          if(x<1&&y<1&&z<1){
-            const np=new THREE.Vector3(x*3.4+1.7,y*3.4+1.7,z*3.4+1.7),nm=new THREE.Mesh(new THREE.SphereGeometry(0.55,18,18),matNi);
-            nm.position.copy(np);materialGroup.add(nm);matObjs.push({type:"niti",m:nm,bp:np.clone(),ly:y+0.5});
-            for(let dx=0;dx<=1;dx++)for(let dy=0;dy<=1;dy++)for(let dz=0;dz<=1;dz++){
-              const cor=new THREE.Vector3((x+dx)*3.4,(y+dy)*3.4,(z+dz)*3.4),bd=createBondCylinder(np,cor,0.07,0x94a3b8,0.6);
-              materialGroup.add(bd);matObjs.push({type:"niti_b",m:bd,p1:np.clone(),p2:cor.clone(),y1:y+0.5,y2:y+dy});
-            }
-          }
-        }
-
+        for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){const tp=new THREE.Vector3(x*3.4,y*3.4,z*3.4),tm=new THREE.Mesh(new THREE.SphereGeometry(0.65,18,18),matTi);tm.position.copy(tp);materialGroup.add(tm);matObjs.push({type:"niti",m:tm,bp:tp.clone(),ly:y});if(x<1&&y<1&&z<1){const np=new THREE.Vector3(x*3.4+1.7,y*3.4+1.7,z*3.4+1.7),nm=new THREE.Mesh(new THREE.SphereGeometry(0.55,18,18),matNi);nm.position.copy(np);materialGroup.add(nm);matObjs.push({type:"niti",m:nm,bp:np.clone(),ly:y+0.5});for(let dx=0;dx<=1;dx++)for(let dy=0;dy<=1;dy++)for(let dz=0;dz<=1;dz++){const cor=new THREE.Vector3((x+dx)*3.4,(y+dy)*3.4,(z+dz)*3.4),bd=createBondCylinder(np,cor,0.07,0x94a3b8,0.6);materialGroup.add(bd);matObjs.push({type:"niti_b",m:bd,p1:np.clone(),p2:cor.clone(),y1:y+0.5,y2:y+dy});}}}
       }else if(id===5){
-        // 6. Silica Aerogel 3D Nanoporous Web + Comet Dust Particle
-        const ag=new THREE.Group(),am=new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:0.55}),pn=[];
-        for(let i=0;i<44;i++){const p=new THREE.Vector3((Math.random()-0.5)*11,(Math.random()-0.5)*11,(Math.random()-0.5)*7),m=new THREE.Mesh(new THREE.SphereGeometry(0.28,10,10),am);m.position.copy(p);ag.add(m);pn.push(p);}
-        for(let i=0;i<pn.length;i++)for(let j=i+1;j<pn.length;j++)if(pn[i].distanceTo(pn[j])<3.2)ag.add(createBondCylinder(pn[i],pn[j],0.05,0x67e8f9,0.45));
-        materialGroup.add(ag);
-        const dust=new THREE.Mesh(new THREE.SphereGeometry(0.55,14,14),new THREE.MeshStandardMaterial({color:0xf59e0b,emissive:0xd97706}));dust.position.set(-8,3,2);materialGroup.add(dust);
-        matObjs.push({type:"aero",dust,ag});
-
+        const ag=new THREE.Group(),am=new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:0.55}),pn=[];for(let i=0;i<44;i++){const p=new THREE.Vector3((Math.random()-0.5)*11,(Math.random()-0.5)*11,(Math.random()-0.5)*7),m=new THREE.Mesh(new THREE.SphereGeometry(0.28,10,10),am);m.position.copy(p);ag.add(m);pn.push(p);}for(let i=0;i<pn.length;i++)for(let j=i+1;j<pn.length;j++)if(pn[i].distanceTo(pn[j])<3.2)ag.add(createBondCylinder(pn[i],pn[j],0.05,0x67e8f9,0.45));materialGroup.add(ag);const dust=new THREE.Mesh(new THREE.SphereGeometry(0.55,14,14),new THREE.MeshStandardMaterial({color:0xf59e0b,emissive:0xd97706}));dust.position.set(-8,3,2);materialGroup.add(dust);matObjs.push({type:"aero",dust,ag});
       }else if(id===6){
-        // 7. YBCO Superconductor Perovskite + Levitating Magnet + Flux Ring
-        const yg=new THREE.Group(),cm=new THREE.MeshStandardMaterial({color:0x06b6d4}),ym=new THREE.MeshStandardMaterial({color:0xfacc15}),om=new THREE.MeshStandardMaterial({color:0xef4444});
-        for(let l=-2;l<=2;l++)for(let x=-2;x<=2;x++)for(let z=-2;z<=2;z++){const a=new THREE.Mesh(new THREE.SphereGeometry((x+z)%2===0?0.42:0.32,12,12),(x+z)%2===0?cm:(l===0?ym:om));a.position.set(x*1.8,l*1.8,z*1.8);yg.add(a);}
-        materialGroup.add(yg);
-        const mag=new THREE.Mesh(new THREE.BoxGeometry(2.4,2.4,2.4),new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.85}));mag.position.y=7.5;
-        const ring=new THREE.Mesh(new THREE.TorusGeometry(3.2,0.05,10,32),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.6}));ring.position.y=7.5;ring.rotation.x=Math.PI/2;
-        materialGroup.add(mag,ring);matObjs.push({type:"ybco",mag,ring,yg});
-
+        const yg=new THREE.Group(),cm=new THREE.MeshStandardMaterial({color:0x06b6d4}),ym=new THREE.MeshStandardMaterial({color:0xfacc15}),om=new THREE.MeshStandardMaterial({color:0xef4444});for(let l=-2;l<=2;l++)for(let x=-2;x<=2;x++)for(let z=-2;z<=2;z++){const a=new THREE.Mesh(new THREE.SphereGeometry((x+z)%2===0?0.42:0.32,12,12),(x+z)%2===0?cm:(l===0?ym:om));a.position.set(x*1.8,l*1.8,z*1.8);yg.add(a);}materialGroup.add(yg);const mag=new THREE.Mesh(new THREE.BoxGeometry(2.4,2.4,2.4),new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.85}));mag.position.y=7.5;const ring=new THREE.Mesh(new THREE.TorusGeometry(3.2,0.05,10,32),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.6}));ring.position.y=7.5;ring.rotation.x=Math.PI/2;materialGroup.add(mag,ring);matObjs.push({type:"ybco",mag,ring,yg});
       }else{
-        // 8. 2nm GAAFET Silicon Nanosheet Transistor + Flowing Electron Packets
-        const cg=new THREE.Group(),nsM=new THREE.MeshStandardMaterial({color:0x0284c7,metalness:0.6}),gtM=new THREE.MeshStandardMaterial({color:0xf59e0b,transparent:true,opacity:0.55}),ctM=new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.8});
-        const src=new THREE.Mesh(new THREE.BoxGeometry(2.2,5,5),ctM);src.position.x=-4.5;
-        const drn=new THREE.Mesh(new THREE.BoxGeometry(2.2,5,5),ctM);drn.position.x=4.5;cg.add(src,drn);
-        for(let ns=-1;ns<=1;ns++){const sh=new THREE.Mesh(new THREE.BoxGeometry(7,0.55,3.5),nsM);sh.position.y=ns*1.5;cg.add(sh);}
-        cg.add(new THREE.Mesh(new THREE.BoxGeometry(3,5.5,4.2),gtM));
-        const pkts=[];for(let k=0;k<15;k++){const p=new THREE.Mesh(new THREE.SphereGeometry(0.22,10,10),new THREE.MeshBasicMaterial({color:0x38bdf8}));p.position.set((Math.random()-0.5)*6,((k%3)-1)*1.5,(Math.random()-0.5)*2.5);cg.add(p);pkts.push(p);}
-        materialGroup.add(cg);matObjs.push({type:"chip",cg,pkts});
+        const cg=new THREE.Group(),nsM=new THREE.MeshStandardMaterial({color:0x0284c7,metalness:0.6}),gtM=new THREE.MeshStandardMaterial({color:0xf59e0b,transparent:true,opacity:0.55}),ctM=new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.8});const src=new THREE.Mesh(new THREE.BoxGeometry(2.2,5,5),ctM);src.position.x=-4.5;const drn=new THREE.Mesh(new THREE.BoxGeometry(2.2,5,5),ctM);drn.position.x=4.5;cg.add(src,drn);for(let ns=-1;ns<=1;ns++){const sh=new THREE.Mesh(new THREE.BoxGeometry(7,0.55,3.5),nsM);sh.position.y=ns*1.5;cg.add(sh);}cg.add(new THREE.Mesh(new THREE.BoxGeometry(3,5.5,4.2),gtM));const pkts=[];for(let k=0;k<15;k++){const p=new THREE.Mesh(new THREE.SphereGeometry(0.22,10,10),new THREE.MeshBasicMaterial({color:0x38bdf8}));p.position.set((Math.random()-0.5)*6,((k%3)-1)*1.5,(Math.random()-0.5)*2.5);cg.add(p);pkts.push(p);}materialGroup.add(cg);matObjs.push({type:"chip",cg,pkts});
       }
     }
 
@@ -517,9 +577,9 @@
         b.addEventListener("click",()=>{state.activeShowcase=i;updateUI();setMode("materials");});sg.appendChild(b);
       });
       const rg=document.getElementById("rxGridBtns");rg.innerHTML="";
-      REACTIONS.forEach((rx,i)=>{const b=document.createElement("button");b.className=`text-left p-2 rounded-xl border transition ${i===state.activeReaction?"border-amber-500 bg-amber-950/30":"border-slate-700 bg-slate-900/70 hover:bg-slate-800"}`;
+      REACTIONS.forEach((rx,i)=>{const b=document.createElement("button");b.className=`text-left p-2 rounded-xl border transition ${i===state.activeReaction?"border-amber-400 bg-amber-950/40":"border-slate-700 bg-slate-900/70 hover:bg-slate-800"}`;
         b.innerHTML=`<div class="text-xs font-bold text-white">${lang==="en"?rx.title_en:rx.title_th}</div><div class="text-[10px] text-slate-400">${lang==="en"?rx.sub_en:rx.sub_th}</div>`;
-        b.addEventListener("click",()=>{state.activeReaction=i;state.isReacting=false;setMode("reaction");});rg.appendChild(b);
+        b.addEventListener("click",()=>{state.activeReaction=i;state.isReacting=false;setMode("reaction");playTone(500,0.12);});rg.appendChild(b);
       });
     }
 
@@ -541,7 +601,7 @@
       document.getElementById("btnMaterialPulse").textContent=en?"⚡ Test Force":"⚡ ทดสอบแรง";
       document.getElementById("hudTips").textContent=en?"🖱️ Drag to Orbit 360° • 🔍 Scroll to Zoom":"🖱️ ลากหมุน 360° • 🔍 ลูกกลิ้งซูม";
       document.getElementById("scBarTitle").textContent=en?"🧪 8 Physical & Advanced Material Showcases (Click for 3D)":"🧪 8 ตัวอย่างการจับตัวทางกายภาพ & วัสดุล้ำยุค (คลิกเพื่อจำลอง 3D)";
-      document.getElementById("rxBarTitle").textContent=en?"💥 5 3D Chemical Reactions":"💥 5 ปฏิกิริยาเคมี 3 มิติ";
+      document.getElementById("rxBarTitle").textContent=en?"💥 5 3D Chemical Reactions (Select & press '⚡ React / Ignite' above)":"💥 5 ปฏิกิริยาเคมี 3 มิติ (คลิกเลือกปฏิกิริยา แล้วกด '⚡ สั่งทำปฏิกิริยา' ด้านบน)";
       document.getElementById("gridHeading").textContent=en?"118-Element Matrix & 4 Economic Industry Sectors":"ตารางธาตุ 118 ธาตุ & ตัวกรอง 4 ภาคอุตสาหกรรม";
       document.getElementById("searchInput").placeholder=en?"Search element...":"ค้นหาธาตุ...";
       document.getElementById("lblShells").textContent=en?"Electron Shells":"ชั้นอิเล็กตรอน";
@@ -551,10 +611,7 @@
       document.getElementById("lblCrystal").textContent=en?"Structure:":"ผลึก:";
       document.getElementById("btnPrevShowcase").textContent=en?"← Prev":"← ก่อนหน้า";
       document.getElementById("btnNextShowcase").textContent=en?"Next →":"ถัดไป →";
-      setMode(state.mode);
-      renderGrid();
-      buildTable();
-      updateUI();
+      setMode(state.mode);renderGrid();buildTable();updateUI();
     }
 
     function updateUI(){const en=lang==="en",el=ELEMENTS[state.selectedZ-1],cm=CATEGORY_META[el.catKey],sm=SECTOR_META[el.sectorKey];
@@ -572,12 +629,24 @@
       document.getElementById("infoBondingDesc").textContent=en?`${el.nameEn} (${el.sym}) bonds according to ${cm.en} properties.`:`อะตอม${el.nameTh} (${el.sym}) ยึดเหนี่ยวตามสมบัติของ${cm.th}`;
       document.getElementById("infoBondType").textContent=el.catKey==="nonmetal"?(en?"Covalent":"โคเวเลนต์"):(el.catKey==="noble"?(en?"Van der Waals":"แวนเดอร์วาลส์"):(en?"Metallic / Lattice":"พันธะโลหะ/โครงผลึก"));
       document.getElementById("infoCrystalType").textContent=el.catKey==="noble"?"Monatomic":"Cubic / Hexagonal";
-      const sc=SHOWCASES[state.activeShowcase];
-      document.getElementById("showcaseBadge").textContent=en?sc.badge_en:sc.badge_th;document.getElementById("showcaseFormula").textContent=sc.formula;
-      document.getElementById("showcaseTitle").textContent=en?sc.title_en:sc.title_th;document.getElementById("showcaseDescription").textContent=en?sc.desc_en:sc.desc_th;
-      document.getElementById("materialActionLabel").textContent=en?sc.param_en:sc.param_th;
-      document.getElementById("showcaseBullets").innerHTML=(en?sc.b_en:sc.b_th).map(b=>`<li>${b}</li>`).join("");
-      document.getElementById("showcaseCounter").textContent=`${sc.id+1} / 8`;
+
+      if(state.mode==="reaction"){
+        const rx=REACTIONS[state.activeReaction];
+        document.getElementById("showcaseBadge").textContent=en?`Reaction #${rx.id+1} • MD Simulation`:`ปฏิกิริยาที่ ${rx.id+1} • MD Simulation`;
+        document.getElementById("showcaseFormula").textContent=rx.eq;
+        document.getElementById("showcaseTitle").textContent=en?rx.title_en:rx.title_th;
+        document.getElementById("showcaseDescription").textContent=en?rx.desc_en:rx.desc_th;
+        document.getElementById("showcaseBullets").innerHTML=(en?rx.b_en:rx.b_th).map(b=>`<li>${b}</li>`).join("");
+        document.getElementById("showcaseNavFooter").classList.add("hidden");
+      }else{
+        const sc=SHOWCASES[state.activeShowcase];
+        document.getElementById("showcaseBadge").textContent=en?sc.badge_en:sc.badge_th;document.getElementById("showcaseFormula").textContent=sc.formula;
+        document.getElementById("showcaseTitle").textContent=en?sc.title_en:sc.title_th;document.getElementById("showcaseDescription").textContent=en?sc.desc_en:sc.desc_th;
+        document.getElementById("materialActionLabel").textContent=en?sc.param_en:sc.param_th;
+        document.getElementById("showcaseBullets").innerHTML=(en?sc.b_en:sc.b_th).map(b=>`<li>${b}</li>`).join("");
+        document.getElementById("showcaseCounter").textContent=`${sc.id+1} / 8`;
+        document.getElementById("showcaseNavFooter").classList.remove("hidden");
+      }
       renderShowcaseAndReactionButtons();
     }
 
@@ -588,7 +657,8 @@
       document.getElementById("table3DSubBtns").classList.toggle("hidden",m!=="table");document.getElementById("atom3DSubBtns").classList.toggle("hidden",m!=="atom");document.getElementById("reaction3DSubBtns").classList.toggle("hidden",m!=="reaction");document.getElementById("material3DSubBtns").classList.toggle("hidden",m!=="materials");
       document.getElementById("showcasesContainer").classList.toggle("hidden",m==="reaction");document.getElementById("reactionsContainer").classList.toggle("hidden",m!=="reaction");
       document.getElementById("hudDynamicNote").textContent=en?`Active Mode: ${m.toUpperCase()}`:`กำลังแสดง: ${m}`;
-      if(m==="atom")buildAtom(ELEMENTS[state.selectedZ-1]);if(m==="reaction")buildReaction(state.activeReaction);if(m==="materials")buildShowcase(state.activeShowcase);resetCam();
+      if(m==="atom")buildAtom(ELEMENTS[state.selectedZ-1]);if(m==="reaction")buildReaction(state.activeReaction);if(m==="materials")buildShowcase(state.activeShowcase);
+      updateUI();resetCam();
     }
     function selectElement(z,sw){const p=state.selectedZ;state.selectedZ=z;playTone(220+z*3);updateUI();renderGrid();buildTable();updateTableTargets();if(state.mode==="atom")buildAtom(ELEMENTS[z-1]);else if(sw&&p===z&&state.mode==="table")setMode("atom");}
 
@@ -623,7 +693,30 @@
       camera.position.set(cam.r*Math.sin(cam.ph)*Math.sin(cam.th),cam.r*Math.cos(cam.ph),cam.r*Math.sin(cam.ph)*Math.cos(cam.th));camera.lookAt(0,0,0);
       if(state.mode==="table")tableTileMeshes.forEach(m=>{m.position.lerp(m.userData.tp,0.09);if(state.tableLayout!=="table")m.lookAt(camera.position);else m.rotation.set(0,0,0);});
       if(state.mode==="atom"){if(state.atomModel==="bohr"){nucParts.forEach(p=>p.position.lerp(state.nucleusExploded?p.userData.ep:p.userData.bp,0.08));orbList.forEach(o=>o.h.rotation.z+=0.014*o.sp*state.atomSpeed);}else if(qCloud){qCloud.rotation.y=el*0.3;}}
-      if(state.mode==="reaction"&&state.isReacting){const p=Math.min(1,(performance.now()-state.reactionStartTime)/2000);rxObjs.forEach(o=>{if(p<0.5){o.r1.position.x=-5*(1-p*2);o.r2.position.x=5*(1-p*2);}else{o.r1.scale.setScalar(0.001);o.r2.scale.setScalar(0.001);o.p1.scale.setScalar((p-0.5)*2);}});}
+      if(state.mode==="reaction"){
+        if(state.isReacting){
+          const p=Math.min(1,(performance.now()-state.reactionStartTime)/2200);
+          if(p<0.5){
+            const t=p*2;
+            rxReactants.forEach(r=>{r.m.position.lerpVectors(r.bp,new THREE.Vector3(0,0,0),t);});
+          }else{
+            const t=(p-0.5)*2;
+            rxReactants.forEach(r=>r.m.scale.setScalar(0.001));
+            rxProducts.forEach((pr,idx)=>{
+              pr.m.scale.setScalar(t);
+              pr.m.position.lerpVectors(new THREE.Vector3(0,0,0),pr.tp,t);
+              // Thermal molecular vibration after forming!
+              if(p>=1){pr.m.position.y=pr.tp.y+Math.sin(el*8+idx)*0.12;pr.m.rotation.y=el*0.6;}
+            });
+          }
+          if(rxBurst){
+            if(p>0.4&&p<0.95){rxBurst.material.opacity=Math.sin((p-0.4)/0.55*Math.PI)*0.9;const arr=rxBurst.geometry.attributes.position.array;for(let i=0;i<rxBurst.userData.vels.length;i++){arr[i*3]+=rxBurst.userData.vels[i].x*0.03;arr[i*3+1]+=rxBurst.userData.vels[i].y*0.03;arr[i*3+2]+=rxBurst.userData.vels[i].z*0.03;}rxBurst.geometry.attributes.position.needsUpdate=true;}
+            else{rxBurst.material.opacity=0;}
+          }
+        }else{
+          rxReactants.forEach((r,idx)=>{r.m.rotation.y=el*0.4+idx;});
+        }
+      }
       if(state.mode==="materials"){const pa=(performance.now()-state.materialPulseTime)/1000,pf=(pa>=0&&pa<3)?Math.sin(pa/3*Math.PI)*0.6:0,tf=Math.min(1,state.materialParam/100+pf);
         matObjs.forEach(o=>{
           if(o.type==="o2c"){o.g.rotation.y=el*0.45;}
