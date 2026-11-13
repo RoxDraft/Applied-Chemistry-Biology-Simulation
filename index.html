@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applied Science 3D Lab — Chemistry, Physics & Biology Simulations</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+      background: radial-gradient(circle at top right, #0f172a 0%, #050811 60%);
+      color: #f1f5f9;
+      min-height: 100vh;
+    }
+    .glass {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+    .sim-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .sim-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 36px -12px rgba(56, 189, 248, 0.28);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-cyan-500/30">
+
+  <!-- Header -->
+  <header class="glass sticky top-0 z-30 border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-indigo-500 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/20">
+          🔬
+        </div>
+        <div>
+          <h1 id="hdrTitle" class="text-sm sm:text-base font-bold bg-gradient-to-r from-cyan-300 via-emerald-200 to-indigo-300 bg-clip-text text-transparent">
+            Applied Chemistry, Physics & Biology 3D Lab
+          </h1>
+          <p id="hdrSubtitle" class="text-[11px] text-slate-400">
+            คลังแบบจำลอง 3 มิติแบบแยกพื้นฐานชัดเจน พร้อมสะพานเชื่อมโยงข้ามศาสตร์ (GitHub Pages Ready)
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Discipline Filter Pills -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+          <button data-filter="all" id="fltAll" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950 transition">
+            🌐 ทั้งหมด (All)
+          </button>
+          <button data-filter="chemistry" id="fltChem" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition">
+            ⚛ เคมี (Chemistry)
+          </button>
+          <button data-filter="physics" id="fltPhys" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition">
+            ⚡ ฟิสิกส์วัสดุ (Physics)
+          </button>
+          <button data-filter="biology" id="fltBio" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition">
+            🧬 ชีววิทยา (Biology)
+          </button>
+        </div>
+
+        <!-- Language Toggle -->
+        <button id="btnLangToggle" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 transition shadow-sm">
+          🌐 TH / EN
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
+
+    <!-- Hero Banner -->
+    <section class="glass rounded-3xl p-6 sm:p-8 border border-slate-800 relative overflow-hidden">
+      <div class="max-w-3xl space-y-3 relative z-10">
+        <span id="heroBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+          ✨ Hybrid Architecture: แยกพื้นฐานให้เข้าใจง่าย + เชื่อมโยงข้ามศาสตร์
+        </span>
+        <h2 id="heroHeading" class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+          สำรวจโลกตั้งแต่ระดับอะตอม พันธะเคมี แรงกลศาสตร์วัสดุ ไปจนถึงสิ่งมีชีวิต 3 มิติ
+        </h2>
+        <p id="heroDesc" class="text-sm text-slate-300 leading-relaxed">
+          ออกแบบให้แยกหมวดหมู่พื้นฐานของ <b>เคมี</b>, <b>ฟิสิกส์ของวัสดุ</b> และ <b>ชีววิทยา</b> ออกจากกันอย่างเป็นระบบ เพื่อไม่ให้สับสนเวลาเรียนพื้นฐาน แต่มีสะพานเชื่อมโยงให้เห็นว่าโครงสร้างอะตอมเดียวกันส่งผลต่อความยืดหยุ่นทางฟิสิกส์และการทำงานของสิ่งมีชีวิตอย่างไร
+        </p>
+      </div>
+    </section>
+
+    <!-- 3D Simulation Modules Grid -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="modulesHeading" class="text-base sm:text-lg font-bold text-white">🚀 เลือกห้องปฏิบัติการ 3 มิติ (Interactive 3D Modules)</h3>
+        <span id="visibleCountText" class="text-xs text-slate-400">แสดง 3 โปรเจกต์หลัก</span>
+      </div>
+
+      <div id="simGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Card 1 -->
+        <article data-tags="chemistry physics" class="sim-card glass rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between gap-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">⚛</span>
+              <div class="flex gap-1.5">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Chemistry</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Physics</span>
+              </div>
+            </div>
+            <h4 id="c1Title" class="text-lg font-bold text-white">3D Periodic Table & Matter Simulation</h4>
+            <p id="c1Desc" class="text-xs text-slate-300 leading-relaxed">
+              ตารางธาตุครบ 118 ธาตุ พร้อมแบบจำลองบอร์ กลุ่มหมอกควอนตัม (s, p, d, f), ปฏิกิริยาเคมี 3D และทดสอบแรงกระทำทางฟิสิกส์บนโครงสร้างวัสดุ 8 ชนิด (เช่น เมมโมรี่โฟม, โลหะจำรูป Nitinol, เพชร/แกรฟีน, ตัวนำยิ่งยวด YBCO)
+            </p>
+            <ul id="c1Bullets" class="text-[11px] text-slate-400 space-y-1 list-disc pl-4">
+              <li>ทดสอบแรงกดทับและการคืนตัว (Viscoelasticity)</li>
+              <li>จำลองปฏิกิริยาเคมีและการชนของโมเลกุล</li>
+              <li>เชื่อมโยง 4 ภาคอุตสาหกรรมเศรษฐกิจ</li>
+            </ul>
+          </div>
+          <button id="c1Btn" data-target="periodic-table-3d.html" class="launch-btn w-full py-2.5 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs text-center transition shadow-lg shadow-cyan-500/20">
+            เปิดจำลอง 3D Periodic Table →
+          </button>
+        </article>
+
+        <!-- Card 2 -->
+        <article data-tags="biology chemistry physics" class="sim-card glass rounded-2xl p-5 border border-emerald-500/30 flex flex-col justify-between gap-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">🌿</span>
+              <div class="flex gap-1.5">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Biology</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Chem / Bio-Physics</span>
+              </div>
+            </div>
+            <h4 id="c2Title" class="text-lg font-bold text-white">3D Plant Biosphere & Bio-Materials</h4>
+            <p id="c2Desc" class="text-xs text-slate-300 leading-relaxed">
+              ชีววิทยาของพืชที่โต้ตอบกับแสงและความชื้น: แรงดึงชลศาสตร์ในท่อไซเลม-โฟลเอ็ม, การสังเคราะห์แสง C3/C4/CAM, สารระเหยสื่อสารสิ่งมีชีวิต, วิวัฒนาการ 500 ล้านปี และเยื่อกระดาษ สีย้อม กลิ่น ยารักษาโรค
+            </p>
+            <ul id="c2Bullets" class="text-[11px] text-slate-400 space-y-1 list-disc pl-4">
+              <li>ปรับแสงแดดและความชื้นดินดูการเปิด-ปิดปากใบ</li>
+              <li>ไทม์ไลน์มอสส์ เฟิร์น สน สู่พืชดอก</li>
+              <li>สกัดเซลลูโลส คราม เคอร์คูมิน และควินิน</li>
+            </ul>
+          </div>
+          <button id="c2Btn" data-target="plant-biosphere-3d.html" class="launch-btn w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs text-center transition shadow-lg shadow-emerald-500/20">
+            เปิดจำลอง 3D Plant Biosphere →
+          </button>
+        </article>
+
+        <!-- Card 3 -->
+        <article data-tags="biology chemistry" class="sim-card glass rounded-2xl p-5 border border-purple-500/30 flex flex-col justify-between gap-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">🧬</span>
+              <div class="flex gap-1.5">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Biology</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Biochemistry</span>
+              </div>
+            </div>
+            <h4 id="c3Title" class="text-lg font-bold text-white">3D DNA Helix & Embryo Cleavage</h4>
+            <p id="c3Desc" class="text-xs text-slate-300 leading-relaxed">
+              จำลองเกลียวคู่ B-DNA มาตรฐาน PDB (A=T 2 พันธะ, G≡C 3 พันธะ, คลายเกลียว Helicase) และการปฏิสนธิถึงการแบ่งเซลล์ตัวอ่อน 8 ระยะ เปรียบเทียบสัตว์ 4 กลุ่ม: มนุษย์/สัตว์เลี้ยงลูกด้วยนม, กบ, ไก่, และเม่นทะเล
+            </p>
+            <ul id="c3Bullets" class="text-[11px] text-slate-400 space-y-1 list-disc pl-4">
+              <li>ดูคลื่นแคลเซียม (Ca²⁺ Wave) ป้องกันอสุจิซ้ำ</li>
+              <li>ผ่าตัดดูโพรง Blastocoel และ Inner Cell Mass</li>
+              <li>เทียบ Rotational vs Discoidal vs Radial Cleavage</li>
+            </ul>
+          </div>
+          <button id="c3Btn" data-target="dna-embryo-3d.html" class="launch-btn w-full py-2.5 px-4 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-bold text-xs text-center transition shadow-lg shadow-purple-500/20">
+            เปิดจำลอง 3D DNA & Embryo →
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <!-- Physics & Material Stress/Elasticity Interactive Comparator -->
+    <section id="physicsLabSection" class="glass rounded-2xl p-5 sm:p-6 border border-amber-500/25 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">⚡ Physics & Material Mechanics Bridge</span>
+          <h3 id="physTitle" class="text-base sm:text-lg font-bold text-white mt-0.5">
+            เปรียบเทียบความแข็งแรง การยืดหยุ่น และการเลือกใช้ส่วนผสมวัสดุกับงานจริง
+          </h3>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800">
+          <span id="stressLabel" class="text-xs text-slate-300">ทดสอบแรงดึง/แรงกด (Stress):</span>
+          <input id="stressSlider" type="range" min="0" max="100" value="40" class="w-28 accent-amber-400 cursor-pointer" />
+          <span id="stressValue" class="text-xs font-mono font-bold text-amber-300 w-10 text-right">40%</span>
+        </div>
+      </div>
+
+      <div id="materialCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+    </section>
+
+    <!-- Cross-Disciplinary Bridge Matrix -->
+    <section class="glass rounded-2xl p-5 sm:p-6 border border-slate-800 space-y-4">
+      <h3 id="bridgeHeading" class="text-base font-bold text-white">🔗 สะพานเชื่อมโยงความรู้ข้ามศาสตร์ (Chemistry ↔ Physics ↔ Biology)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <div id="br1Title" class="font-bold text-cyan-300">1. พันธะไฮโดรเจน (Hydrogen Bond)</div>
+          <p id="br1Desc" class="text-slate-300 leading-relaxed">
+            <b>เคมี:</b> แรงดึงดูดระหว่าง H กับ O/N → <b>ฟิสิกส์:</b> ทำให้เส้นใยเซลลูโลสยึดเกาะเป็นแผ่นกระดาษ และทำให้เมมโมรี่โฟมคืนตัวช้าๆ → <b>ชีววิทยา:</b> ยึดคู่เบส DNA และดึงน้ำขึ้นยอดไม้ 100 เมตรในท่อไซเลม
+          </p>
+        </div>
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <div id="br2Title" class="font-bold text-emerald-300">2. โครงสร้างคาร์บอน & พอลิเมอร์</div>
+          <p id="br2Desc" class="text-slate-300 leading-relaxed">
+            <b>เคมี:</b> พันธะ 4 แขนของคาร์บอน (sp³/sp²) → <b>ฟิสิกส์:</b> กำหนดความแข็งแกร่งระดับเพชรหรือความยืดหยุ่นของสายโซ่พอลิยูรีเทน → <b>ชีววิทยา:</b> เป็นแกนหลักของน้ำตาล กลูโคส ลิกนิน และเยื่อหุ้มเซลล์
+          </p>
+        </div>
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-1.5">
+          <div id="br3Title" class="font-bold text-purple-300">3. พลังงานแสงและไอออน (Photons & Ions)</div>
+          <p id="br3Desc" class="text-slate-300 leading-relaxed">
+            <b>ฟิสิกส์:</b> โฟตอนแสงและศักย์ไฟฟ้าเมมเบรน → <b>เคมี:</b> แตกโมเลกุลน้ำและตรึงคาร์บอน (C3/C4/CAM) → <b>ชีววิทยา:</b> คลื่น Ca²⁺ ป้องกันอสุจิซ้ำ และ K⁺ เปิด-ปิดปากใบพืช
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toast Notification for Canvas Preview -->
+    <div id="navToast" class="hidden fixed bottom-4 right-4 z-50 glass px-4 py-3 rounded-xl border border-cyan-400/50 text-xs text-cyan-200 shadow-2xl max-w-sm">
+      <div id="navToastTitle" class="font-bold text-white mb-0.5">กำลังเปิดไฟล์จำลอง 3 มิติ...</div>
+      <div id="navToastMsg"></div>
+    </div>
+
+  </main>
+
+  <script>
+    const I18N = {
+      th: {
+        hdrSubtitle: "คลังแบบจำลอง 3 มิติแบบแยกพื้นฐานชัดเจน พร้อมสะพานเชื่อมโยงข้ามศาสตร์ (GitHub Pages Ready)",
+        fltAll: "🌐 ทั้งหมด (All)",
+        fltChem: "⚛ เคมี (Chemistry)",
+        fltPhys: "⚡ ฟิสิกส์วัสดุ (Physics)",
+        fltBio: "🧬 ชีววิทยา (Biology)",
+        heroBadge: "✨ Hybrid Architecture: แยกพื้นฐานให้เข้าใจง่าย + เชื่อมโยงข้ามศาสตร์",
+        heroHeading: "สำรวจโลกตั้งแต่ระดับอะตอม พันธะเคมี แรงกลศาสตร์วัสดุ ไปจนถึงสิ่งมีชีวิต 3 มิติ",
+        heroDesc: "ออกแบบให้แยกหมวดหมู่พื้นฐานของ <b>เคมี</b>, <b>ฟิสิกส์ของวัสดุ</b> และ <b>ชีววิทยา</b> ออกจากกันอย่างเป็นระบบ เพื่อไม่ให้สับสนเวลาเรียนพื้นฐาน แต่มีสะพานเชื่อมโยงให้เห็นว่าโครงสร้างอะตอมเดียวกันส่งผลต่อความยืดหยุ่นทางฟิสิกส์และการทำงานของสิ่งมีชีวิตอย่างไร",
+        modulesHeading: "🚀 เลือกห้องปฏิบัติการ 3 มิติ (Interactive 3D Modules)",
+        showing: (n) => `แสดง ${n} โปรเจกต์`,
+        c1Desc: "ตารางธาตุครบ 118 ธาตุ พร้อมแบบจำลองบอร์ กลุ่มหมอกควอนตัม (s, p, d, f), ปฏิกิริยาเคมี 3D และทดสอบแรงกระทำทางฟิสิกส์บนโครงสร้างวัสดุ 8 ชนิด (เช่น เมมโมรี่โฟม, โลหะจำรูป Nitinol, เพชร/แกรฟีน, ตัวนำยิ่งยวด YBCO)",
+        c1Bullets: ["ทดสอบแรงกดทับและการคืนตัว (Viscoelasticity)", "จำลองปฏิกิริยาเคมีและการชนของโมเลกุล", "เชื่อมโยง 4 ภาคอุตสาหกรรมเศรษฐกิจ"],
+        c1Btn: "เปิดจำลอง 3D Periodic Table →",
+        c2Desc: "ชีววิทยาของพืชที่โต้ตอบกับแสงและความชื้น: แรงดึงชลศาสตร์ในท่อไซเลม-โฟลเอ็ม, การสังเคราะห์แสง C3/C4/CAM, สารระเหยสื่อสารสิ่งมีชีวิต, วิวัฒนาการ 500 ล้านปี และเยื่อกระดาษ สีย้อม กลิ่น ยารักษาโรค",
+        c2Bullets: ["ปรับแสงแดดและความชื้นดินดูการเปิด-ปิดปากใบ", "ไทม์ไลน์มอสส์ เฟิร์น สน สู่พืชดอก", "สกัดเซลลูโลส คราม เคอร์คูมิน และควินิน"],
+        c2Btn: "เปิดจำลอง 3D Plant Biosphere →",
+        c3Desc: "จำลองเกลียวคู่ B-DNA มาตรฐาน PDB (A=T 2 พันธะ, G≡C 3 พันธะ, คลายเกลียว Helicase) และการปฏิสนธิถึงการแบ่งเซลล์ตัวอ่อน 8 ระยะ เปรียบเทียบสัตว์ 4 กลุ่ม: มนุษย์/สัตว์เลี้ยงลูกด้วยนม, กบ, ไก่, และเม่นทะเล",
+        c3Bullets: ["ดูคลื่นแคลเซียม (Ca²⁺ Wave) ป้องกันอสุจิซ้ำ", "ผ่าตัดดูโพรง Blastocoel และ Inner Cell Mass", "เทียบ Rotational vs Discoidal vs Radial Cleavage"],
+        c3Btn: "เปิดจำลอง 3D DNA & Embryo →",
+        physTitle: "เปรียบเทียบความแข็งแรง การยืดหยุ่น และการเลือกใช้ส่วนผสมวัสดุกับงานจริง",
+        stressLabel: "ทดสอบแรงดึง/แรงกด (Stress):",
+        deformLbl: "การยืด/ยุบตัว (Deformation):",
+        strengthLbl: "ความทนทานต่อแรง (Strength):",
+        recLbl: "การคืนตัว:",
+        bestLbl: "เหมาะกับงาน:",
+        safeMsg: "✅ รับแรงได้สบาย",
+        failMsg: "⚠️ เกินขีดจำกัดความแข็งแรง",
+        bridgeHeading: "🔗 สะพานเชื่อมโยงความรู้ข้ามศาสตร์ (Chemistry ↔ Physics ↔ Biology)",
+        br1Title: "1. พันธะไฮโดรเจน (Hydrogen Bond)",
+        br1Desc: "<b>เคมี:</b> แรงดึงดูดระหว่าง H กับ O/N → <b>ฟิสิกส์:</b> ทำให้เส้นใยเซลลูโลสยึดเกาะเป็นแผ่นกระดาษ และทำให้เมมโมรี่โฟมคืนตัวช้าๆ → <b>ชีววิทยา:</b> ยึดคู่เบส DNA และดึงน้ำขึ้นยอดไม้ 100 เมตรในท่อไซเลม",
+        br2Title: "2. โครงสร้างคาร์บอน & พอลิเมอร์",
+        br2Desc: "<b>เคมี:</b> พันธะ 4 แขนของคาร์บอน (sp³/sp²) → <b>ฟิสิกส์:</b> กำหนดความแข็งแกร่งระดับเพชรหรือความยืดหยุ่นของสายโซ่พอลิยูรีเทน → <b>ชีววิทยา:</b> เป็นแกนหลักของน้ำตาล กลูโคส ลิกนิน และเยื่อหุ้มเซลล์",
+        br3Title: "3. พลังงานแสงและไอออน (Photons & Ions)",
+        br3Desc: "<b>ฟิสิกส์:</b> โฟตอนแสงและศักย์ไฟฟ้าเมมเบรน → <b>เคมี:</b> แตกโมเลกุลน้ำและตรึงคาร์บอน (C3/C4/CAM) → <b>ชีววิทยา:</b> คลื่น Ca²⁺ ป้องกันอสุจิซ้ำ และ K⁺ เปิด-ปิดปากใบพืช",
+        toastTitle: "กำลังเปิดไฟล์จำลอง 3 มิติ...",
+        toastBody: (t) => `ไฟล์ปลายทางคือ ${t} — เมื่ออัปโหลดชุดไฟล์ .zip ขึ้น GitHub Pages แล้ว ปุ่มนี้จะเปิดหน้าจำลอง 3 มิติทันที`
+      },
+      en: {
+        hdrSubtitle: "Modular 3D Interactive Lab separating Core Foundations with Cross-Disciplinary Bridges (GitHub Pages Ready)",
+        fltAll: "🌐 All",
+        fltChem: "⚛ Chemistry",
+        fltPhys: "⚡ Material Physics",
+        fltBio: "🧬 Biology",
+        heroBadge: "✨ Hybrid Architecture: Clear Foundations + Cross-Disciplinary Bridges",
+        heroHeading: "Explore the Universe from Atomic Bonds & Material Mechanics to Living 3D Organisms",
+        heroDesc: "Designed to separate foundational <b>Chemistry</b>, <b>Material Physics</b>, and <b>Biology</b> for intuitive learning, while connecting how atomic structures dictate mechanical elasticity and biological function.",
+        modulesHeading: "🚀 Select an Interactive 3D Laboratory",
+        showing: (n) => `Showing ${n} project(s)`,
+        c1Desc: "All 118 elements with 3D Bohr models, Quantum Electron Clouds (s, p, d, f), 3D Chemical Reaction Sandbox, and physical stress testing across 8 advanced materials (Memory Foam, Nitinol, Diamond/Graphene, YBCO Superconductor).",
+        c1Bullets: ["Test compression & recovery (Viscoelasticity)", "Simulate molecular collisions & bond breaking", "Explore 4 Global Economic Industry Sectors"],
+        c1Btn: "Launch 3D Periodic Table →",
+        c2Desc: "Interactive plant biology responding to sunlight & moisture: Xylem-Phloem hydraulic transport, C3/C4/CAM photosynthesis, volatile ecological signals (VOCs), 500M-year evolution, and wood-pulp paper, natural dyes, scents & medicine.",
+        c2Bullets: ["Adjust sunlight & soil moisture to gate stomata", "500M-year timeline: Mosses → Ferns → Conifers → Flowers", "Extract cellulose, indigo, curcumin & quinine"],
+        c2Btn: "Launch 3D Plant Biosphere →",
+        c3Desc: "PDB-accurate B-DNA Double Helix (A=T 2 H-bonds, G≡C 3 H-bonds, Helicase unwinding) and 8-stage fertilization & embryonic cleavage across 4 animal groups: Mammals/Human, Amphibians (Frog), Avian (Bird), and Sea Urchin.",
+        c3Bullets: ["Observe Ca²⁺ Wave blocking polyspermy", "Cross-section Blastocoel & Inner Cell Mass", "Compare Rotational vs Discoidal vs Radial Cleavage"],
+        c3Btn: "Launch 3D DNA & Embryo →",
+        physTitle: "Compare Strength, Elasticity & Engineering Suitability Across Material Blends",
+        stressLabel: "Apply Tensile / Compressive Stress:",
+        deformLbl: "Deformation / Strain:",
+        strengthLbl: "Yield Strength:",
+        recLbl: "Recovery:",
+        bestLbl: "Best Suited For:",
+        safeMsg: "✅ Within Elastic / Safe Limit",
+        failMsg: "⚠️ Exceeds Material Strength Limit",
+        bridgeHeading: "🔗 Cross-Disciplinary Bridges (Chemistry ↔ Physics ↔ Biology)",
+        br1Title: "1. Hydrogen Bonding",
+        br1Desc: "<b>Chemistry:</b> H–O/N electrostatic attraction → <b>Physics:</b> Binds cellulose fibers into paper & gives memory foam slow viscoelastic rebound → <b>Biology:</b> Holds DNA base pairs & pulls water up 100m trees in xylem.",
+        br2Title: "2. Carbon Backbones & Polymers",
+        br2Desc: "<b>Chemistry:</b> 4-valent carbon (sp³/sp²) → <b>Physics:</b> Determines diamond hardness or polyurethane chain flexibility → <b>Biology:</b> Forms sugars, lignin, and cellular membranes.",
+        br3Title: "3. Photons & Ion Gradients",
+        br3Desc: "<b>Physics:</b> Light photons & membrane potential → <b>Chemistry:</b> Water photolysis & carbon fixation (C3/C4/CAM) → <b>Biology:</b> Ca²⁺ fertilization wave & K⁺ stomatal gating.",
+        toastTitle: "Opening 3D Simulation...",
+        toastBody: (t) => `Target file is ${t} — once uploaded from the .zip bundle to GitHub Pages, this button navigates directly.`
+      }
+    };
+
+    const MATERIALS_COMPARE = [
+      {
+        name_th: "เมมโมรี่โฟม (Polyurethane)",
+        name_en: "Memory Foam (Polyurethane)",
+        formula: "C-H-O-N Open-Cell",
+        elasticity: 92,
+        strength: 25,
+        recovery_th: "ช้า (Viscoelastic 3-5 วิ)",
+        recovery_en: "Slow Viscoelastic Rebound (3-5s)",
+        bestFor_th: "เบาะนักบินอวกาศ ลดแรง G-Force, ที่นอนลดแรงกดทับ, หมอนรองคอ",
+        bestFor_en: "Spacecraft G-Force seats, pressure-relief mattresses, ergonomic cushions",
+        color: "purple"
+      },
+      {
+        name_th: "โลหะจำรูป Nitinol (Ni-Ti)",
+        name_en: "Nitinol Shape-Memory Alloy",
+        formula: "Ni 50% : Ti 50% B2",
+        elasticity: 85,
+        strength: 88,
+        recovery_th: "ดีดกลับทันทีเมื่อได้รับความร้อน",
+        recovery_en: "Thermal Phase Snap-Back (Austenite)",
+        bestFor_th: "เสาอากาศ/แผงโซลาร์เซลล์ยานอวกาศ, ขดลวดถ่างหลอดเลือด (Stent), กรอบแว่นยืดหยุ่น",
+        bestFor_en: "Spacecraft deployable antennas, medical vascular stents, superelastic frames",
+        color: "cyan"
+      },
+      {
+        name_th: "เส้นใยเซลลูโลส & ลิกนิน (ไม้)",
+        name_en: "Wood Cellulose & Lignin",
+        formula: "(C₆H₁₀O₅)ₙ + Lignin",
+        elasticity: 40,
+        strength: 75,
+        recovery_th: "คงรูปแข็งแรง ต้านแรงดึงตามแนวเส้นใย",
+        recovery_en: "Rigid Structural Tensile Resistance",
+        bestFor_th: "เยื่อกระดาษ, บรรจุภัณฑ์, โครงสร้างไม้ก่อสร้าง, ท่อลำเลียงน้ำสูง 100 เมตร",
+        bestFor_en: "Paper pulp, eco-packaging, timber construction, 100m tree xylem",
+        color: "emerald"
+      },
+      {
+        name_th: "แกรฟีน & คาร์บอนไฟเบอร์",
+        name_en: "Graphene & Carbon Fiber",
+        formula: "sp² Hexagonal Carbon",
+        elasticity: 30,
+        strength: 99,
+        recovery_th: "แข็งเกร็งสูงมาก น้ำหนักเบาสุด",
+        recovery_en: "Ultra-High Stiffness & Low Mass",
+        bestFor_th: "ปีกเครื่องบิน, ตัวถังจรวด/รถแข่ง F1, หัวเจาะอุตสาหกรรม (เพชร sp³)",
+        bestFor_en: "Aircraft wings, rocket hulls, F1 chassis, industrial diamond drills",
+        color: "amber"
+      }
+    ];
+
+    let currentStress = 40;
+    let activeDiscipline = "all";
+    let lang = "th";
+    try {
+      const saved = localStorage.getItem("applied_sim_lang");
+      if (saved === "en" || saved === "th") lang = saved;
+    } catch (e) {}
+
+    function renderMaterialStressCards() {
+      const t = I18N[lang];
+      const container = document.getElementById("materialCards");
+      container.innerHTML = "";
+      MATERIALS_COMPARE.forEach((m) => {
+        const deformPct = Math.round((currentStress * m.elasticity) / 100);
+        const strainRisk = currentStress > m.strength ? t.failMsg : t.safeMsg;
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/90 rounded-xl p-3.5 border border-slate-800 flex flex-col justify-between gap-2.5";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-1">
+              <h4 class="text-xs font-bold text-white">${lang === "en" ? m.name_en : m.name_th}</h4>
+              <span class="text-[10px] font-mono text-${m.color}-300">${m.formula}</span>
+            </div>
+            <div class="mt-2 space-y-1.5 text-[11px]">
+              <div>
+                <div class="flex justify-between text-slate-400">
+                  <span>${t.deformLbl}</span>
+                  <b class="text-amber-300">${deformPct}%</b>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1">
+                  <div class="h-full bg-amber-400 transition-all duration-150" style="width: ${deformPct}%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-400">
+                  <span>${t.strengthLbl}</span>
+                  <b class="text-cyan-300">${m.strength}/100</b>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1">
+                  <div class="h-full bg-cyan-400" style="width: ${m.strength}%"></div>
+                </div>
+              </div>
+            </div>
+            <p class="text-[10px] text-slate-300 mt-2"><b>${t.recLbl}</b> ${lang === "en" ? m.recovery_en : m.recovery_th}</p>
+            <p class="text-[10px] text-slate-400 mt-1"><b>${t.bestLbl}</b> ${lang === "en" ? m.bestFor_en : m.bestFor_th}</p>
+          </div>
+          <div class="pt-2 border-t border-slate-800 text-[10px] font-semibold ${currentStress > m.strength ? 'text-rose-400' : 'text-emerald-400'}">
+            ${strainRisk}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = lang;
+      const t = I18N[lang];
+      document.getElementById("btnLangToggle").textContent = lang === "en" ? "🌐 EN (Switch to TH)" : "🌐 TH (Switch to EN)";
+      document.getElementById("hdrSubtitle").textContent = t.hdrSubtitle;
+      document.getElementById("fltAll").textContent = t.fltAll;
+      document.getElementById("fltChem").textContent = t.fltChem;
+      document.getElementById("fltPhys").textContent = t.fltPhys;
+      document.getElementById("fltBio").textContent = t.fltBio;
+      document.getElementById("heroBadge").textContent = t.heroBadge;
+      document.getElementById("heroHeading").textContent = t.heroHeading;
+      document.getElementById("heroDesc").innerHTML = t.heroDesc;
+      document.getElementById("modulesHeading").textContent = t.modulesHeading;
+
+      document.getElementById("c1Desc").textContent = t.c1Desc;
+      document.getElementById("c1Bullets").innerHTML = t.c1Bullets.map(b => `<li>${b}</li>`).join("");
+      document.getElementById("c1Btn").textContent = t.c1Btn;
+
+      document.getElementById("c2Desc").textContent = t.c2Desc;
+      document.getElementById("c2Bullets").innerHTML = t.c2Bullets.map(b => `<li>${b}</li>`).join("");
+      document.getElementById("c2Btn").textContent = t.c2Btn;
+
+      document.getElementById("c3Desc").textContent = t.c3Desc;
+      document.getElementById("c3Bullets").innerHTML = t.c3Bullets.map(b => `<li>${b}</li>`).join("");
+      document.getElementById("c3Btn").textContent = t.c3Btn;
+
+      document.getElementById("physTitle").textContent = t.physTitle;
+      document.getElementById("stressLabel").textContent = t.stressLabel;
+      document.getElementById("bridgeHeading").textContent = t.bridgeHeading;
+      document.getElementById("br1Title").textContent = t.br1Title;
+      document.getElementById("br1Desc").innerHTML = t.br1Desc;
+      document.getElementById("br2Title").textContent = t.br2Title;
+      document.getElementById("br2Desc").innerHTML = t.br2Desc;
+      document.getElementById("br3Title").textContent = t.br3Title;
+      document.getElementById("br3Desc").innerHTML = t.br3Desc;
+      document.getElementById("navToastTitle").textContent = t.toastTitle;
+
+      applyDisciplineFilter(activeDiscipline);
+      renderMaterialStressCards();
+    }
+
+    function applyDisciplineFilter(filter) {
+      activeDiscipline = filter;
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        const isMatch = btn.getAttribute("data-filter") === filter;
+        btn.className = isMatch
+          ? "filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950 transition"
+          : "filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition";
+      });
+
+      let count = 0;
+      document.querySelectorAll("#simGrid article").forEach((card) => {
+        const tags = card.getAttribute("data-tags").split(" ");
+        const show = filter === "all" || tags.includes(filter);
+        card.classList.toggle("hidden", !show);
+        if (show) count++;
+      });
+      document.getElementById("visibleCountText").textContent = I18N[lang].showing(count);
+    }
+
+    document.getElementById("btnLangToggle").addEventListener("click", () => {
+      lang = lang === "th" ? "en" : "th";
+      try { localStorage.setItem("applied_sim_lang", lang); } catch (e) {}
+      applyLanguage();
+    });
+
+    document.querySelectorAll(".filter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        applyDisciplineFilter(btn.getAttribute("data-filter"));
+      });
+    });
+
+    document.querySelectorAll(".launch-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-target");
+        if (window.location.protocol === "http:" || window.location.protocol === "https:" || window.location.protocol === "file:") {
+          if (window.location.hostname === "" || window.location.hostname.includes("github.io") || window.location.protocol === "file:") {
+            window.location.href = target;
+            return;
+          }
+        }
+        const toast = document.getElementById("navToast");
+        document.getElementById("navToastMsg").textContent = I18N[lang].toastBody(target);
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 4500);
+      });
+    });
+
+    document.getElementById("stressSlider").addEventListener("input", (e) => {
+      currentStress = Number(e.target.value);
+      document.getElementById("stressValue").textContent = `${currentStress}%`;
+      renderMaterialStressCards();
+    });
+
+    window.addEventListener("load", () => {
+      applyLanguage();
+    });
+  </script>
+</body>
+</html>

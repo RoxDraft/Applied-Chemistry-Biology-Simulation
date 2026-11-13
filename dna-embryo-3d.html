@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D DNA Double Helix & Animal Fertilization / Embryo Cleavage Simulation</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: 'Noto Sans Thai', 'Inter', sans-serif; background-color: #060913; color: #f1f5f9; overflow-x: hidden; }
+    .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(14px); border: 1px solid rgba(148, 163, 184, 0.16); }
+    canvas { display: block; outline: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#050811] text-slate-100">
+  <header class="glass-panel sticky top-0 z-30 px-3 sm:px-4 py-2 border-b border-slate-800/80">
+    <div class="max-w-[1680px] mx-auto flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5">
+        <button id="btnBackHub" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 transition">← Hub</button>
+        <div>
+          <h1 class="text-xs sm:text-sm md:text-base font-bold bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+            3D DNA Double Helix & Animal Fertilization / Cleavage Simulation
+          </h1>
+          <p id="hdrSub" class="text-[10px] sm:text-[11px] text-slate-400 hidden sm:block">สายเกลียวคู่ B-DNA มาตรฐาน PDB & การปฏิสนธิ-แบ่งเซลล์ตัวอ่อน 4 ชนิดสัตว์</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5 bg-slate-900/95 p-1 rounded-xl border border-slate-800">
+        <button id="tabBtnDNA" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950">🧬 1. สายเกลียวคู่ DNA</button>
+        <button id="tabBtnEmbryo" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800">🐣 2. ปฏิสนธิ & แบ่งเซลล์ (4 สัตว์)</button>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btnLangToggle" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">🌐 TH / EN</button>
+        <button id="btnResetCamera" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-cyan-300 border border-slate-700">🎯 รีเซ็ตกล้อง</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-[1680px] w-full mx-auto p-2.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+    <div class="lg:col-span-8 flex flex-col gap-3">
+      <div class="relative rounded-2xl overflow-hidden border border-slate-800/90 bg-[#040711] shadow-2xl flex flex-col h-[420px] sm:h-[490px] lg:h-[520px]">
+        <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+          <div class="glass-panel px-3 py-2 rounded-xl pointer-events-auto flex items-center gap-3">
+            <div id="hudIconBadge" class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-lg">🧬</div>
+            <div>
+              <div id="hudTitle" class="text-xs sm:text-sm font-bold text-white">B-DNA Double Helix</div>
+              <p id="hudSubtitle" class="text-[11px] text-slate-300">2.0 nm | 10.5 bp/turn</p>
+            </div>
+          </div>
+          <div class="glass-panel px-2.5 py-1.5 rounded-xl pointer-events-auto flex items-center gap-1.5">
+            <div id="dnaSubControls" class="flex items-center gap-1.5">
+              <button id="btnDnaUnwind" class="px-2.5 py-1 rounded text-[11px] font-semibold bg-purple-500/30 text-purple-300 border border-purple-400/40">⚡ คลายเกลียว (Helicase)</button>
+            </div>
+            <div id="embryoSubControls" class="hidden flex items-center gap-2">
+              <button id="btnPlayPauseEmbryo" class="px-3 py-1 rounded text-[11px] font-bold bg-cyan-500 text-slate-950">▶ เล่นต่อเนื่อง</button>
+              <button id="btnToggleCrossSection" class="px-2.5 py-1 rounded text-[11px] bg-slate-800 text-amber-300 border border-amber-500/30">🔪 ผ่าตัดดูภายใน</button>
+            </div>
+          </div>
+        </div>
+        <div id="threeContainer" class="w-full h-full flex-1 cursor-grab active:cursor-grabbing"></div>
+        <div class="absolute bottom-2.5 left-3 right-3 z-10 flex justify-between pointer-events-none">
+          <div id="hudTips" class="glass-panel px-3 py-1 rounded-lg text-[11px] text-slate-300">🖱️ ลากหมุน 360° • 🔍 ซูม</div>
+          <div id="hudDynamicNote" class="glass-panel px-3 py-1 rounded-lg text-[11px] text-emerald-300"></div>
+        </div>
+      </div>
+
+      <div id="dnaActionPanel" class="glass-panel rounded-2xl p-3 border border-slate-800/90 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div class="p-2 rounded-xl border border-emerald-500/40 bg-emerald-950/30"><div class="text-xs font-bold text-white">A = T (2 H-Bonds)</div><div id="dnaCard1" class="text-[10px] text-slate-400">Adenine pairs with Thymine</div></div>
+        <div class="p-2 rounded-xl border border-cyan-500/40 bg-cyan-950/30"><div class="text-xs font-bold text-white">G ≡ C (3 H-Bonds)</div><div id="dnaCard2" class="text-[10px] text-slate-400">Guanine pairs with Cytosine</div></div>
+        <div class="p-2 rounded-xl border border-purple-500/40 bg-purple-950/30"><div class="text-xs font-bold text-white">Major / Minor Groove</div><div id="dnaCard3" class="text-[10px] text-slate-400">Protein binding grooves</div></div>
+        <div class="p-2 rounded-xl border border-amber-500/40 bg-amber-950/30"><div class="text-xs font-bold text-white">Antiparallel 5'→3'</div><div id="dnaCard4" class="text-[10px] text-slate-400">Sugar-phosphate backbone</div></div>
+      </div>
+
+      <div id="embryoActionPanel" class="hidden glass-panel rounded-2xl p-3 border border-slate-800/90 flex flex-col gap-2">
+        <div class="flex flex-wrap gap-1.5">
+          <button data-species="mammal" id="spMammal" class="species-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950">1. มนุษย์/สัตว์เลี้ยงลูกด้วยนม</button>
+          <button data-species="amphibian" id="spAmphibian" class="species-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 bg-slate-800">2. กบ (ครึ่งบกครึ่งน้ำ)</button>
+          <button data-species="avian" id="spAvian" class="species-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 bg-slate-800">3. ไก่ (สัตว์ปีก)</button>
+          <button data-species="sea_urchin" id="spUrchin" class="species-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 bg-slate-800">4. เม่นทะเล</button>
+        </div>
+        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+          <button data-stage="0" class="stage-btn p-1.5 rounded-lg border border-cyan-400 bg-cyan-950/50 text-[11px] font-bold text-white">1. Sperm</button>
+          <button data-stage="1" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">2. Ca²⁺</button>
+          <button data-stage="2" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">3. Syngamy</button>
+          <button data-stage="3" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">4. 2-Cell</button>
+          <button data-stage="4" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">5. 4-Cell</button>
+          <button data-stage="5" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">6. 8-Cell</button>
+          <button data-stage="6" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">7. Morula</button>
+          <button data-stage="7" class="stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white">8. Blastula</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-4 flex flex-col gap-3">
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800/90 flex flex-col gap-3">
+        <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+          <div id="inspectorBadgeBox" class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-2xl">🧬</div>
+          <div><h2 id="inspectorHeading" class="text-base font-bold text-white"></h2><p id="inspectorSubHeading" class="text-xs text-emerald-300"></p></div>
+        </div>
+        <p id="inspectorDescription" class="text-xs text-slate-300 leading-relaxed bg-slate-900/90 p-3 rounded-xl border border-slate-800"></p>
+        <ul id="inspectorBullets" class="text-xs text-slate-300 space-y-1.5 list-disc pl-4 bg-slate-900/90 p-3 rounded-xl border border-slate-800"></ul>
+      </div>
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800/90 flex-1">
+        <span id="compBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">ชีววิทยาเปรียบเทียบ</span>
+        <h3 id="compTitle" class="text-sm font-bold text-white mt-2"></h3>
+        <p id="compDescription" class="text-xs text-slate-300 leading-relaxed mt-1.5"></p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SPECIES = {
+      mammal:{
+        name_th:"สัตว์เลี้ยงลูกด้วยนม / มนุษย์",name_en:"Mammal / Human",
+        cl_th:"Rotational Holoblastic Cleavage (ไข่แดงน้อย แบ่งหมุนแกน เกิด Blastocyst + ICM)",
+        cl_en:"Rotational Holoblastic Cleavage (Isolecithal egg, compaction, Blastocyst with ICM & Trophoblast)",
+        stages:[
+          {t:"1. Sperm Entry",d_th:"อสุจิปล่อยเอนไซม์จาก Acrosome เจาะเยื่อหุ้ม Zona Pellucida",d_en:"Sperm releases acrosomal enzymes to penetrate the Zona Pellucida.",b_th:["เกาะตัวรับ ZP3","หลอมรวมเยื่อหุ้มเซลล์ไข่"],b_en:["Binds ZP3 receptor","Fuses with oocyte membrane"]},
+          {t:"2. Ca²⁺ Wave Block",d_th:"คลื่นแคลเซียมแผ่กระจาย ทำให้เปลือกไข่แข็งตัวป้องกันอสุจิซ้ำ",d_en:"Ca²⁺ wave triggers cortical granule exocytosis, hardening the zona against polyspermy.",b_th:["Cortical Reaction","Polyspermy Block 100%"],b_en:["Cortical reaction","100% polyspermy block"]},
+          {t:"3. Syngamy (2n)",d_th:"โพรนิวเคลียสชายและหญิงรวมตัวกัน คืนสภาพดิพลอยด์ (2n)",d_en:"Male and female pronuclei fuse to restore diploid (2n) chromosome count.",b_th:["สร้างไซโกตเริ่มต้นชีวิต","จำลอง DNA เตรียมแบ่งตัว"],b_en:["Forms diploid zygote","DNA replication begins"]},
+          {t:"4. 2-Cell Stage",d_th:"แบ่งไซโกตเป็น 2 บลาสโตเมียร์เท่าๆ กันในแนวดิ่ง",d_en:"First meridional cleavage divides zygote into two equal blastomeres.",b_th:["เซลล์ยังมีศักยภาพ Totipotent","ยังอยู่ในเปลือก Zona Pellucida"],b_en:["Totipotent blastomeres","Enclosed in Zona Pellucida"]},
+          {t:"5. 4-Cell (Rotational)",d_th:"เซลล์หนึ่งแบ่งแนวตั้ง อีกเซลล์แบ่งแนวนอน (บิดหมุน 90°)",d_en:"One blastomere divides meridionally while the other divides equatorially (90° rotation).",b_th:["เอกลักษณ์เฉพาะสัตว์เลี้ยงลูกด้วยนม","แบ่งตัวแบบไม่พร้อมกัน"],b_en:["Unique to mammals","Asynchronous division"]},
+          {t:"6. 8-Cell & Compaction",d_th:"โปรตีน E-cadherin ยึดเซลล์เข้าหากันแน่น (Compaction)",d_en:"E-cadherin adhesion pulls blastomeres into a tight compacted ball.",b_th:["เริ่มแยกขั้วนอก-ใน","กำหนดชะตาเซลล์"],b_en:["Polarization begins","Cell fate determination"]},
+          {t:"7. Morula",d_th:"กลุ่ม 16-32 เซลล์คล้ายผลหม่อน ปั๊มของเหลวเข้าแกนกลาง",d_en:"16–32 cell mulberry-like cluster pumping fluid inward to form a cavity.",b_th:["เตรียมเปิดโพรงตัวอ่อน","เดินทางเข้าสู่มดลูก"],b_en:["Prepares blastocoel","Enters uterine cavity"]},
+          {t:"8. Blastocyst",d_th:"แยกเป็น Inner Cell Mass (สร้างทารก) และ Trophoblast (สร้างรก)",d_en:"Forms Inner Cell Mass (embryo) and outer Trophoblast (placenta) around blastocoel.",b_th:["เกิดโพรง Blastocoel","ฟักตัวออกจากเปลือกเพื่อฝังตัว"],b_en:["Fluid-filled blastocoel","Hatches for implantation"]}
+        ]
+      },
+      amphibian:{
+        name_th:"กบ (ครึ่งบกครึ่งน้ำ)",name_en:"Amphibian (Frog)",
+        cl_th:"Unequal Radial Holoblastic (ขั้วบนสีเข้มแบ่งเร็วกว่าขั้วล่างที่มีไข่แดง)",
+        cl_en:"Unequal Radial Holoblastic (Pigmented animal pole divides faster than yolk-rich vegetal pole)",
+        stages:[
+          {t:"1. Cortical Rotation",d_th:"อสุจิเข้าขั้ว Animal Pole ทำให้เกิดแถบ Gray Crescent",d_en:"Sperm entry triggers 30° cortical rotation, forming the dorsal Gray Crescent.",b_th:["กำหนดแกนหลัง-ท้อง","เกิดปากตัวอ่อนในอนาคต"],b_en:["Sets dorsal-ventral axis","Marks future blastopore"]},
+          {t:"2. Ca²⁺ Activation",d_th:"คลื่นแคลเซียมกระตุ้นการแบ่งตัวและบล็อกอสุจิซ้ำ",d_en:"Calcium wave activates mitosis and prevents polyspermy.",b_th:["จัดเรียงไมโครทูบูล","พร้อมแบ่งเซลล์"],b_en:["Organizes microtubules","Prepares first furrow"]},
+          {t:"3. Syngamy (2n)",d_th:"หลอมรวมนิวเคลียสในขั้วบนที่มีไข่แดงน้อยกว่า",d_en:"Pronuclei fuse in the upper animal hemisphere above dense yolk.",b_th:["ขั้วล่างเต็มด้วยเม็ดไข่แดง","ต้านร่องแบ่งเซลล์"],b_en:["Yolk-dense vegetal pole","Slows cleavage furrows"]},
+          {t:"4. 2-Cell Stage",d_th:"ร่องแบ่งผ่ากลาง Gray Crescent เป็นซ้าย-ขวา",d_en:"First vertical furrow bisects the Gray Crescent into left and right halves.",b_th:["สมมาตรสองซีก","ขั้วบนแบ่งเร็วกว่าขั้วล่าง"],b_en:["Bilateral symmetry","Animal pole cleaves faster"]},
+          {t:"5. 4-Cell Stage",d_th:"ร่องแบ่งที่ 2 ตั้งฉากกับร่องแรก",d_en:"Second meridional cleavage runs perpendicular to the first.",b_th:["ได้ 4 เซลล์สมมาตร","เห็นความต่างสีขั้วบน-ล่าง"],b_en:["4 symmetrical blastomeres","Pigment gradient visible"]},
+          {t:"6. 8-Cell (Unequal)",d_th:"ร่องแบ่งแนวนอนเบี่ยงขึ้นบน ได้ 4 เซลล์เล็ก + 4 เซลล์ใหญ่",d_en:"Displaced equatorial cleavage produces 4 small micromeres and 4 large macromeres.",b_th:["Micromeres ขั้วบน","Macromeres ไข่แดงขั้วล่าง"],b_en:["4 animal micromeres","4 yolky macromeres"]},
+          {t:"7. Morula",d_th:"ขั้วบนมีเซลล์เล็กจำนวนมาก ขั้วล่างเป็นเซลล์ใหญ่",d_en:"Rapidly dividing animal cap contrasts with large vegetal yolk cells.",b_th:["ไม่มี Compaction","เริ่มเปิดโพรงขั้วบน"],b_en:["No compaction","Upper cavity forms"]},
+          {t:"8. Coeloblastula",d_th:"เกิดโพรง Blastocoel ค่อนไปทางขั้วบน Animal Pole",d_en:"Blastocoel forms in the animal hemisphere above thick vegetal yolk.",b_th:["ผนังขั้วบนหนาหลายชั้น","พร้อมเข้าสู่ Gastrulation"],b_en:["Multi-layered animal cap","Ready for gastrulation"]}
+        ]
+      },
+      avian:{
+        name_th:"ไก่ (สัตว์ปีก)",name_en:"Avian (Bird / Chick)",
+        cl_th:"Meroblastic Discoidal Cleavage (แบ่งเฉพาะแผ่นจานกลม Blastodisc เหนือไข่แดงมหาศาล)",
+        cl_en:"Meroblastic Discoidal Cleavage (Division restricted to small Blastodisc atop massive yolk)",
+        stages:[
+          {t:"1. Blastodisc Entry",d_th:"อสุจิเจาะเข้าแผ่นไซโทพลาสซึมบางๆ ด้านบนยอดไข่แดง",d_en:"Sperm enters the tiny cytoplasmic blastodisc floating atop massive yolk.",b_th:["Physiological Polyspermy","ไข่แดงไม่เข้าร่วมแบ่งเซลล์"],b_en:["Physiological polyspermy","Yolk never cleaves"]},
+          {t:"2. Ca²⁺ Activation",d_th:"นิวเคลียสเดียวหลอมรวมกับไข่บนแผ่น Blastodisc",d_en:"One sperm nucleus fuses with the egg; extra sperm degenerate.",b_th:["อสุจิอื่นสลายตัว","เตรียมแบ่งแบบ 2 มิติ"],b_en:["2D discoidal setup","Yolk supports nutrition"]},
+          {t:"3. Zygote on Yolk",d_th:"ไซโกตอยู่ตรงกลางแผ่น Blastodisc กว้าง 2-3 มม.",d_en:"Diploid zygote sits at the center of the 2-3 mm blastodisc.",b_th:["รองรับด้วยไข่แดงมหาศาล","เกิดในท่อนำไข่แม่ไก่"],b_en:["Massive telolecithal yolk","Occurs in oviduct"]},
+          {t:"4. First Furrow",d_th:"เกิดร่องกรีดแรกตรงกลางแผ่น ไม่ตัดลงไปในไข่แดง",d_en:"First cleavage furrow scores the blastodisc surface without cutting the yolk.",b_th:["ด้านล่างยังเปิดเชื่อมไข่แดง","ยังไม่แยกเป็นเซลล์สมบูรณ์"],b_en:["Incomplete bottom boundary","Open to yolk below"]},
+          {t:"5. 4-Cell Cross",d_th:"ร่องที่ 2 ตั้งฉากเป็นรูปกากบาทบนยอดไข่แดง",d_en:"Second perpendicular furrow forms a 4-cell cross pattern on top.",b_th:["จำกัดในระนาบแบนด้านบน","ขอบนอกเปิดสู่ไข่แดง"],b_en:["2D flat plane","Continuous at margins"]},
+          {t:"6. 8-Cell Disc",d_th:"แบ่งแบบรัศมีและขนานได้แผ่นกระดาน 8 ช่อง",d_en:"Radial and parallel furrows form an 8-cell monolayer disc.",b_th:["เรียงตัว 2 มิติ","เตรียมแบ่งแนวนอน"],b_en:["Flat 8-cell disc","Prepares horizontal layers"]},
+          {t:"7. Blastoderm",d_th:"เริ่มเกิดโพรง Subgerminal Cavity ใต้แผ่นเซลล์",d_en:"Horizontal divisions thicken the blastoderm over a subgerminal cavity.",b_th:["แผ่นเซลล์หนาหลายชั้น","ส่วนกลางโปร่งแสง"],b_en:["Multi-layered blastoderm","Central zone clears"]},
+          {t:"8. Discoblastula",d_th:"แยกเป็น Area Pellucida (ตัวอ่อน) และ Area Opaca (ขอบยึดไข่แดง)",d_en:"Separates into translucent Area Pellucida (embryo) and outer Area Opaca.",b_th:["แม่ไก่วางไข่ในระยะนี้","พัฒนาต่อเมื่อกกที่ 37.5°C"],b_en:["Laid at this stage","Resumes at 37.5°C incubation"]}
+        ]
+      },
+      sea_urchin:{
+        name_th:"เม่นทะเล",name_en:"Sea Urchin",
+        cl_th:"Radial Holoblastic Cleavage (สมมาตรรัศมีสมบูรณ์แบบ เกิดลูกบอลกลวงว่ายน้ำได้)",
+        cl_en:"Radial Holoblastic Cleavage (Symmetric divisions forming a hollow ciliated swimming blastula)",
+        stages:[
+          {t:"1. Jelly Coat Entry",d_th:"ปฏิสนธิภายนอกในน้ำทะเล อสุจิผ่านชั้นวุ้นด้วยโปรตีน Bindin",d_en:"External fertilization in seawater; sperm binds via species-specific Bindin.",b_th:["จำเพาะต่อสปีชีส์","เปลี่ยนศักย์ไฟฟ้าทันที"],b_en:["Species-specific Bindin","Instant electrical depolarization"]},
+          {t:"2. Fast & Slow Block",d_th:"ยกตัว Fertilization Envelope รอบฟอง ป้องกันอสุจิอื่น",d_en:"Fast electric block (-70mV to +20mV) & slow fertilization envelope elevation.",b_th:["เปลี่ยนประจุ -70mV → +20mV","เห็นวงแหวนใสชัดเจน"],b_en:["Fast Na⁺ block in 0.1s","Visible raised envelope"]},
+          {t:"3. Syngamy",d_th:"โพรนิวเคลียสหลอมรวมตรงกลางไซโทพลาสซึมใส",d_en:"Pronuclei fuse in clear isolecithal cytoplasm.",b_th:["ไม่มีไข่แดงขวางกั้น","แบ่งตัวรวดเร็วมาก"],b_en:["Minimal uniform yolk","Rapid mitotic cycles"]},
+          {t:"4. 2-Cell Radial",d_th:"แบ่ง 2 เซลล์เท่ากันสมบูรณ์ในแนวดิ่ง",d_en:"First vertical division yields two identical blastomeres.",b_th:["อยู่ใน Fertilization Envelope","สมมาตรรัศมี"],b_en:["Equal radial halves","Protected by envelope"]},
+          {t:"5. 4-Cell Stage",d_th:"แบ่ง 4 เซลล์เท่ากันเป๊ะ หากแยกกันจะได้เม่น 4 ตัว",d_en:"4 identical cells; each can form a complete larva if separated (Driesch).",b_th:["Regulative Development","พิสูจน์โดย Driesch"],b_en:["Regulative development","Classic Driesch experiment"]},
+          {t:"6. 8-Cell Equatorial",d_th:"แบ่งตามแนวเส้นศูนย์สูตร ได้ 2 ชั้นเท่ากัน 8 เซลล์",d_en:"Equatorial cleavage yields two stacked tiers of 4 equal blastomeres.",b_th:["ต่างจากกบที่ขนาดไม่เท่ากัน","เรียงซ้อนสมมาตร"],b_en:["Equal upper & lower tiers","Perfect radial symmetry"]},
+          {t:"7. 16-Cell Micromeres",d_th:"ขั้วล่างสร้าง 4 Micromeres ควบคุมโครงกระดูกแคลเซียม",d_en:"4 tiny vegetal micromeres form, organizing larval skeleton.",b_th:["เปิดโพรง Blastocoel ตรงกลาง","เรียงผนังชั้นเดียว"],b_en:["Skeletogenic micromeres","Central blastocoel opens"]},
+          {t:"8. Ciliated Blastula",d_th:"ลูกบอลกลวงชั้นเดียวมีขนซิเลีย ฟักตัวว่ายน้ำในทะเล",d_en:"Hollow single-cell sphere grows cilia, hatches, and swims freely.",b_th:["ว่ายหมุนตัวอิสระ","หลั่งเอนไซม์ย่อยเปลือก"],b_en:["Swims via cilia","Secretes hatching enzyme"]}
+        ]
+      }
+    };
+
+    let lang="th";
+    try{const s=localStorage.getItem("applied_sim_lang");if(s==="en"||s==="th")lang=s;}catch(e){}
+    const state={mode:"dna",dnaUnwound:false,embryoSpecies:"mammal",embryoStage:0,embryoPlaying:false,embryoCrossSection:false};
+    const container=document.getElementById("threeContainer"),scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(48,1,0.1,1000),renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setClearColor(0x040711,1);container.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xdbeafe,0.85));const dl=new THREE.DirectionalLight(0x38bdf8,1.2);dl.position.set(30,40,35);scene.add(dl);
+    const dnaGroup=new THREE.Group(),embryoGroup=new THREE.Group();scene.add(dnaGroup,embryoGroup);
+
+    const cam={r:32,tr:32,th:0.25,ph:1.35,tth:0.25,tph:1.35};
+    function resetCam(){cam.tr=state.mode==="dna"?32:24;cam.tth=0.3;cam.tph=1.3;}
+    let drag=false,prev={x:0,y:0};
+    renderer.domElement.addEventListener("pointerdown",e=>{drag=true;prev={x:e.clientX,y:e.clientY};});
+    window.addEventListener("pointermove",e=>{if(!drag)return;cam.tth-=(e.clientX-prev.x)*0.0075;cam.tph=Math.max(0.2,Math.min(Math.PI-0.2,cam.tph-(e.clientY-prev.y)*0.0075));prev={x:e.clientX,y:e.clientY};});
+    window.addEventListener("pointerup",()=>drag=false);
+    renderer.domElement.addEventListener("wheel",e=>{e.preventDefault();cam.tr=Math.max(8,Math.min(75,cam.tr+e.deltaY*0.03));},{passive:false});
+    function resize(){const w=container.clientWidth||800,h=container.clientHeight||480;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
+    window.addEventListener("resize",resize);
+
+    let dnaPairs=[];
+    function buildDNA(){while(dnaGroup.children.length)dnaGroup.remove(dnaGroup.children[0]);dnaPairs=[];
+      const s1=[],s2=[],cols=[0x10b981,0xf43f5e,0x06b6d4,0xf59e0b];
+      for(let i=0;i<24;i++){const t=i*0.6,y=(i-11.5)*1.3,p1=new THREE.Vector3(Math.cos(t)*4,y,Math.sin(t)*4),p2=new THREE.Vector3(Math.cos(t+2.45)*4,y,Math.sin(t+2.45)*4);s1.push(p1);s2.push(p2);
+        const ph1=new THREE.Mesh(new THREE.SphereGeometry(0.48,12,12),new THREE.MeshStandardMaterial({color:0x38bdf8}));ph1.position.copy(p1);
+        const ph2=ph1.clone();ph2.position.copy(p2);dnaGroup.add(ph1,ph2);
+        const mid=new THREE.Vector3().addVectors(p1,p2).multiplyScalar(0.5);
+        const l=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,p1.distanceTo(mid)*0.8,10),new THREE.MeshStandardMaterial({color:cols[i%2===0?0:2]}));
+        l.position.lerpVectors(p1,mid,0.45);l.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3().subVectors(mid,p1).normalize());
+        const r=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,p2.distanceTo(mid)*0.8,10),new THREE.MeshStandardMaterial({color:cols[i%2===0?1:3]}));
+        r.position.lerpVectors(p2,mid,0.45);r.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3().subVectors(mid,p2).normalize());
+        dnaGroup.add(l,r);dnaPairs.push({l,r,p1,p2,mid});
+      }
+      dnaGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(s1),100,0.2,8,false),new THREE.MeshStandardMaterial({color:0x818cf8})));
+      dnaGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(s2),100,0.2,8,false),new THREE.MeshStandardMaterial({color:0x818cf8})));
+    }
+
+    let caWave=null;
+    function buildEmbryo(){while(embryoGroup.children.length)embryoGroup.remove(embryoGroup.children[0]);caWave=null;
+      const sp=state.embryoSpecies,st=state.embryoStage,bm=new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:state.embryoCrossSection,opacity:state.embryoCrossSection?0.65:0.95}),ym=new THREE.MeshStandardMaterial({color:0xfef08a});
+      if(st===0){embryoGroup.add(new THREE.Mesh(new THREE.SphereGeometry(5.2,28,28),bm));const s=new THREE.Mesh(new THREE.SphereGeometry(0.45,12,12),new THREE.MeshBasicMaterial({color:0xffffff}));s.position.set(5.5,1,0);embryoGroup.add(s);}
+      else if(st===1){embryoGroup.add(new THREE.Mesh(new THREE.SphereGeometry(5.2,28,28),bm));caWave=new THREE.Mesh(new THREE.SphereGeometry(5.5,24,24),new THREE.MeshBasicMaterial({color:0x34d399,wireframe:true,transparent:true,opacity:0.65}));embryoGroup.add(caWave);}
+      else if(st===2){embryoGroup.add(new THREE.Mesh(new THREE.SphereGeometry(5.2,28,28),bm));const n1=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),new THREE.MeshStandardMaterial({color:0x38bdf8})),n2=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),new THREE.MeshStandardMaterial({color:0xf43f5e}));n1.position.x=-0.6;n2.position.x=0.6;embryoGroup.add(n1,n2);}
+      else if(st===3){if(sp==="avian"){embryoGroup.add(new THREE.Mesh(new THREE.SphereGeometry(5.2,28,28),ym));[-1,1].forEach(x=>{const b=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.4,1.6),bm);b.position.set(x,5.2,0);embryoGroup.add(b);});}else{[-2,2].forEach(x=>{const b=new THREE.Mesh(new THREE.SphereGeometry(3.2,20,20),bm);b.position.x=x;embryoGroup.add(b);});}}
+      else if(st===4){if(sp==="avian"){embryoGroup.add(new THREE.Mesh(new THREE.SphereGeometry(5.2,28,28),ym));[-0.9,0.9].forEach(x=>[-0.9,0.9].forEach(z=>{const b=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.4,1.3),bm);b.position.set(x,5.2,z);embryoGroup.add(b);}));}else if(sp==="mammal"){[[-1.8,1.8,0],[1.8,1.8,0],[0,-1.8,-1.8],[0,-1.8,1.8]].forEach(p=>{const b=new THREE.Mesh(new THREE.SphereGeometry(2.4,18,18),bm);b.position.set(...p);embryoGroup.add(b);});}else{for(let i=0;i<4;i++){const a=i/4*Math.PI*2,b=new THREE.Mesh(new THREE.SphereGeometry(2.4,18,18),bm);b.position.set(Math.cos(a)*2,Math.sin(a)*2,0);embryoGroup.add(b);}}}
+      else if(st===5){for(let z=-1;z<=1;z+=2)for(let i=0;i<4;i++){const a=i/4*Math.PI*2,r=(sp==="amphibian"&&z<0)?2.4:1.7,b=new THREE.Mesh(new THREE.SphereGeometry(r,16,16),(sp==="amphibian"&&z<0)?ym:bm);b.position.set(Math.cos(a)*2,z*1.7,Math.sin(a)*2);embryoGroup.add(b);}}
+      else if(st===6){for(let i=0;i<28;i++){const p=Math.acos(1-2*(i+0.5)/28),t=Math.PI*(1+Math.sqrt(5))*i,b=new THREE.Mesh(new THREE.SphereGeometry(1.2,12,12),bm);b.position.set(3.8*Math.sin(p)*Math.cos(t),3.8*Math.cos(p),3.8*Math.sin(p)*Math.sin(t));embryoGroup.add(b);}}
+      else{const sh=new THREE.Mesh(new THREE.SphereGeometry(5,28,28,0,state.embryoCrossSection?Math.PI:Math.PI*2),new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:0.65,side:THREE.DoubleSide}));embryoGroup.add(sh);if(sp==="mammal"){for(let k=0;k<8;k++){const c=new THREE.Mesh(new THREE.SphereGeometry(0.7,12,12),new THREE.MeshStandardMaterial({color:0xec4899}));c.position.set((Math.random()-0.5)*2,3+(Math.random()-0.5),((Math.random()-0.5)*2));embryoGroup.add(c);}}}
+    }
+
+    function updateUI(){
+      const en=lang==="en";
+      document.documentElement.lang=lang;
+      document.getElementById("btnLangToggle").textContent=en?"🌐 EN → TH":"🌐 TH → EN";
+      document.getElementById("hdrSub").textContent=en?"PDB-Accurate B-DNA Helix & 4-Species Animal Fertilization / Cleavage":"สายเกลียวคู่ B-DNA มาตรฐาน PDB & การปฏิสนธิ-แบ่งเซลล์ตัวอ่อน 4 ชนิดสัตว์";
+      document.getElementById("btnResetCamera").textContent=en?"🎯 Reset Camera":"🎯 รีเซ็ตกล้อง";
+      document.getElementById("hudTips").textContent=en?"🖱️ Drag to Orbit 360° • 🔍 Scroll to Zoom":"🖱️ ลากหมุน 360° • 🔍 ซูม";
+      document.getElementById("btnDnaUnwind").textContent=state.dnaUnwound?(en?"🔄 Rewind Helix":"🔄 รวมเกลียว"):(en?"⚡ Unwind (Helicase)":"⚡ คลายเกลียว (Helicase)");
+      document.getElementById("btnPlayPauseEmbryo").textContent=state.embryoPlaying?(en?"⏸ Pause":"⏸ หยุด"):(en?"▶ Auto Play":"▶ เล่นต่อเนื่อง");
+      document.getElementById("btnToggleCrossSection").textContent=state.embryoCrossSection?(en?"🔮 Solid View":"🔮 ดูเต็มฟอง"):(en?"🔪 Cross-Section":"🔪 ผ่าตัดดูภายใน");
+      document.getElementById("compBadge").textContent=en?"Comparative Biology":"ชีววิทยาเปรียบเทียบ";
+
+      document.getElementById("spMammal").textContent=en?"1. Mammal / Human":"1. มนุษย์/สัตว์เลี้ยงลูกด้วยนม";
+      document.getElementById("spAmphibian").textContent=en?"2. Amphibian (Frog)":"2. กบ (ครึ่งบกครึ่งน้ำ)";
+      document.getElementById("spAvian").textContent=en?"3. Avian (Bird)":"3. ไก่ (สัตว์ปีก)";
+      document.getElementById("spUrchin").textContent=en?"4. Sea Urchin":"4. เม่นทะเล";
+
+      if(state.mode==="dna"){
+        document.getElementById("hudIconBadge").textContent="🧬";document.getElementById("hudTitle").textContent="B-DNA Double Helix";document.getElementById("hudSubtitle").textContent="2.0 nm | 10.5 bp/turn";document.getElementById("hudDynamicNote").textContent=en?"Active: B-DNA Double Helix":"กำลังแสดง: สายเกลียวคู่ B-DNA";
+        document.getElementById("inspectorBadgeBox").textContent="🧬";document.getElementById("inspectorHeading").textContent=en?"B-DNA Double Helix":"เกลียวคู่ดีเอ็นเอ (B-DNA)";document.getElementById("inspectorSubHeading").textContent="Watson-Crick Model";
+        document.getElementById("inspectorDescription").textContent=en?"Two antiparallel polynucleotide strands wind into a right-handed helix with A=T (2 H-bonds) and G≡C (3 H-bonds).":"สายพอลินิวคลีโอไทด์ 2 สายพันเกลียวเวียนขวา หันเบสจับคู่ A=T (2 H-Bonds) และ G≡C (3 H-Bonds)";
+        document.getElementById("inspectorBullets").innerHTML=en?"<li>A=T paired by 2 Hydrogen Bonds</li><li>G≡C paired by 3 Hydrogen Bonds</li>":"<li>A=T ยึดด้วย 2 พันธะไฮโดรเจน</li><li>G≡C ยึดด้วย 3 พันธะไฮโดรเจน</li>";
+        document.getElementById("compTitle").textContent=en?"DNA Unwinding & Replication":"การจำลองและการคลายเกลียว DNA";document.getElementById("compDescription").textContent=en?"Helicase breaks H-bonds to open the replication fork for semiconservative copying.":"เอนไซม์ Helicase ตัดพันธะไฮโดรเจนเพื่อเปิด Replication Fork";
+      }else{
+        const sp=SPECIES[state.embryoSpecies],st=sp.stages[state.embryoStage];
+        document.getElementById("hudIconBadge").textContent="🐣";document.getElementById("hudTitle").textContent=en?sp.name_en:sp.name_th;document.getElementById("hudSubtitle").textContent=st.t;document.getElementById("hudDynamicNote").textContent=`${en?sp.name_en:sp.name_th} • ${st.t}`;
+        document.getElementById("inspectorBadgeBox").textContent="🔬";document.getElementById("inspectorHeading").textContent=st.t;document.getElementById("inspectorSubHeading").textContent=en?sp.name_en:sp.name_th;
+        document.getElementById("inspectorDescription").textContent=en?st.d_en:st.d_th;document.getElementById("inspectorBullets").innerHTML=(en?st.b_en:st.b_th).map(x=>`<li>${x}</li>`).join("");
+        document.getElementById("compTitle").textContent=en?sp.name_en:sp.name_th;document.getElementById("compDescription").textContent=en?sp.cl_en:sp.cl_th;
+        document.querySelectorAll(".species-btn").forEach(b=>b.className=b.getAttribute("data-species")===state.embryoSpecies?"species-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950":"species-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 bg-slate-800");
+        document.querySelectorAll(".stage-btn").forEach(b=>b.className=Number(b.getAttribute("data-stage"))===state.embryoStage?"stage-btn p-1.5 rounded-lg border border-cyan-400 bg-cyan-950/50 text-[11px] font-bold text-white":"stage-btn p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-bold text-white");
+        buildEmbryo();
+      }
+    }
+    function setMode(m){state.mode=m;dnaGroup.visible=m==="dna";embryoGroup.visible=m==="embryo";
+      const en=lang==="en";
+      document.getElementById("tabBtnDNA").textContent=en?"🧬 1. DNA Double Helix":"🧬 1. สายเกลียวคู่ DNA";
+      document.getElementById("tabBtnEmbryo").textContent=en?"🐣 2. Fertilization & Cleavage":"🐣 2. ปฏิสนธิ & แบ่งเซลล์ (4 สัตว์)";
+      document.getElementById("tabBtnDNA").className=m==="dna"?"px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950":"px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800";
+      document.getElementById("tabBtnEmbryo").className=m==="embryo"?"px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950":"px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800";
+      document.getElementById("dnaSubControls").classList.toggle("hidden",m!=="dna");document.getElementById("embryoSubControls").classList.toggle("hidden",m!=="embryo");
+      document.getElementById("dnaActionPanel").classList.toggle("hidden",m!=="dna");document.getElementById("embryoActionPanel").classList.toggle("hidden",m!=="embryo");
+      updateUI();resetCam();
+    }
+
+    document.getElementById("btnBackHub").addEventListener("click",()=>{window.location.href="index.html";});
+    document.getElementById("btnLangToggle").addEventListener("click",()=>{lang=lang==="th"?"en":"th";try{localStorage.setItem("applied_sim_lang",lang);}catch(e){}setMode(state.mode);});
+    document.getElementById("tabBtnDNA").addEventListener("click",()=>setMode("dna"));
+    document.getElementById("tabBtnEmbryo").addEventListener("click",()=>setMode("embryo"));
+    document.getElementById("btnResetCamera").addEventListener("click",resetCam);
+    document.getElementById("btnDnaUnwind").addEventListener("click",()=>{state.dnaUnwound=!state.dnaUnwound;updateUI();});
+    document.getElementById("btnPlayPauseEmbryo").addEventListener("click",()=>{state.embryoPlaying=!state.embryoPlaying;updateUI();});
+    document.getElementById("btnToggleCrossSection").addEventListener("click",()=>{state.embryoCrossSection=!state.embryoCrossSection;updateUI();});
+    document.querySelectorAll(".species-btn").forEach(b=>b.addEventListener("click",()=>{state.embryoSpecies=b.getAttribute("data-species");updateUI();}));
+    document.querySelectorAll(".stage-btn").forEach(b=>b.addEventListener("click",()=>{state.embryoStage=Number(b.getAttribute("data-stage"));state.embryoPlaying=false;updateUI();}));
+
+    let clk=new THREE.Clock(),tm=0;
+    function animate(){requestAnimationFrame(animate);const el=clk.getElapsedTime();
+      cam.r+=(cam.tr-cam.r)*0.08;cam.th+=(cam.tth-cam.th)*0.08;cam.ph+=(cam.tph-cam.ph)*0.08;
+      camera.position.set(cam.r*Math.sin(cam.ph)*Math.sin(cam.th),cam.r*Math.cos(cam.ph),cam.r*Math.sin(cam.ph)*Math.cos(cam.th));camera.lookAt(0,0,0);
+      if(state.mode==="dna"){dnaGroup.rotation.y=el*0.25;const u=state.dnaUnwound?2.2:0;dnaPairs.forEach((p,i)=>{const s=Math.sin(i/24*Math.PI)*u;p.l.position.x+=(p.p1.x*(1+s*0.35)-p.l.position.x)*0.08;p.r.position.x+=(p.p2.x*(1+s*0.35)-p.r.position.x)*0.08;});}
+      if(state.mode==="embryo"){embryoGroup.rotation.y=el*0.2;if(caWave)caWave.scale.setScalar(1+Math.sin(el*4)*0.04);if(state.embryoPlaying){tm+=0.016;if(tm>2.5){tm=0;state.embryoStage=(state.embryoStage+1)%8;updateUI();}}}
+      renderer.render(scene,camera);
+    }
+    window.addEventListener("load",()=>{resize();buildDNA();setMode("dna");animate();});
+  </script>
+</body>
+</html>

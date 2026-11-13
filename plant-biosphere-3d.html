@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Plant Biosphere: Photosynthesis, Vascular Transport, Evolution & Natural Materials</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: 'Noto Sans Thai', 'Inter', sans-serif; background-color: #040d0a; color: #f1f5f9; overflow-x: hidden; }
+    .glass-panel { background: rgba(6, 21, 18, 0.85); backdrop-filter: blur(14px); border: 1px solid rgba(45, 212, 191, 0.16); }
+    canvas { display: block; outline: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#040d0a] text-slate-100">
+  <header class="glass-panel sticky top-0 z-30 px-3 sm:px-4 py-2 border-b border-teal-900/60">
+    <div class="max-w-[1680px] mx-auto flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5">
+        <button id="btnBackHub" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition">← Hub</button>
+        <div>
+          <h1 id="hdrTitle" class="text-xs sm:text-sm md:text-base font-bold bg-gradient-to-r from-emerald-300 via-teal-200 to-lime-300 bg-clip-text text-transparent">
+            3D Plant Biosphere: Plant Biology, Evolution & Natural Materials
+          </h1>
+          <p id="hdrSub" class="text-[10px] sm:text-[11px] text-slate-400 hidden sm:block">ท่อลำเลียง • สังเคราะห์แสง C3/C4/CAM • สารสื่อสาร VOCs • วิวัฒนาการ 500 ล้านปี • กระดาษ สี กลิ่น ยา</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-1 bg-slate-900/95 p-1 rounded-xl border border-teal-900/60">
+        <button id="tabBtnTransport" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950">💧 ลำเลียงน้ำ-อาหาร</button>
+        <button id="tabBtnPhotosynth" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800">☀️ สังเคราะห์แสง</button>
+        <button id="tabBtnEcology" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800">🐝 สารสื่อสาร VOCs</button>
+        <button id="tabBtnEvolution" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800">⏳ วิวัฒนาการ</button>
+        <button id="tabBtnMaterials" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800">📜 กระดาษ/สี/กลิ่น/ยา</button>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btnLangToggle" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">🌐 TH / EN</button>
+        <button id="btnResetCamera" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-teal-300 border border-slate-700">🎯 รีเซ็ตกล้อง</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-[1680px] w-full mx-auto p-2.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+    <div class="lg:col-span-8 flex flex-col gap-3">
+      <div class="relative rounded-2xl overflow-hidden border border-teal-900/60 bg-[#030907] shadow-2xl flex flex-col h-[420px] sm:h-[490px] lg:h-[520px]">
+        <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+          <div class="glass-panel px-3 py-2 rounded-xl pointer-events-auto flex items-center gap-3">
+            <div id="hudIconBadge" class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-xl">💧</div>
+            <div>
+              <div id="hudTitle" class="text-xs sm:text-sm font-bold text-white"></div>
+              <p id="hudSubtitle" class="text-[11px] text-slate-300"></p>
+            </div>
+          </div>
+          <div class="glass-panel px-2.5 py-1.5 rounded-xl pointer-events-auto flex items-center gap-2 text-xs">
+            <span id="lblSun" class="text-[11px] text-amber-300">☀️ แสง:</span><input id="sunlightSlider" type="range" min="0" max="100" value="75" class="w-16 accent-amber-400" />
+            <span id="lblMoist" class="text-[11px] text-cyan-300">🌧️ ความชื้น:</span><input id="moistureSlider" type="range" min="10" max="100" value="65" class="w-16 accent-cyan-400" />
+          </div>
+        </div>
+        <div id="threeContainer" class="w-full h-full flex-1 cursor-grab active:cursor-grabbing"></div>
+        <div class="absolute bottom-2.5 left-3 right-3 z-10 flex justify-between pointer-events-none">
+          <div id="hudTips" class="glass-panel px-3 py-1 rounded-lg text-[11px] text-slate-300">🖱️ ลากหมุน 360° • 🔍 ซูม</div>
+          <div id="hudDynamicNote" class="glass-panel px-3 py-1 rounded-lg text-[11px] text-emerald-300"></div>
+        </div>
+      </div>
+
+      <div id="panelTransport" class="glass-panel rounded-2xl p-3 border border-teal-900/60 grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+      <div id="panelPhotosynth" class="hidden glass-panel rounded-2xl p-3 border border-teal-900/60 grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+      <div id="panelEcology" class="hidden glass-panel rounded-2xl p-3 border border-teal-900/60 grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+      <div id="panelEvolution" class="hidden glass-panel rounded-2xl p-3 border border-teal-900/60 grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+      <div id="panelMaterials" class="hidden glass-panel rounded-2xl p-3 border border-teal-900/60 grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+    </div>
+
+    <div class="lg:col-span-4 flex flex-col gap-3">
+      <div class="glass-panel rounded-2xl p-4 border border-teal-900/60 flex flex-col gap-3">
+        <div class="flex items-center gap-3 border-b border-teal-900/50 pb-3">
+          <div id="inspectorBadgeBox" class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-2xl">💧</div>
+          <div><h2 id="inspectorHeading" class="text-base font-bold text-white"></h2><p id="inspectorSubHeading" class="text-xs text-emerald-300"></p></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="bg-slate-900/90 rounded-xl p-2 border border-teal-950"><span class="text-slate-400 block text-[10px]" id="param1Label"></span><span class="font-bold text-cyan-300" id="param1Value"></span></div>
+          <div class="bg-slate-900/90 rounded-xl p-2 border border-teal-950"><span class="text-slate-400 block text-[10px]" id="param2Label"></span><span class="font-bold text-emerald-300" id="param2Value"></span></div>
+        </div>
+        <p id="inspectorDescription" class="text-xs text-slate-300 leading-relaxed bg-slate-900/90 p-3 rounded-xl border border-teal-950"></p>
+        <ul id="inspectorBullets" class="text-xs text-slate-300 space-y-1 list-disc pl-4 bg-slate-900/90 p-3 rounded-xl border border-teal-950"></ul>
+      </div>
+      <div class="glass-panel rounded-2xl p-4 border border-teal-900/60 flex-1">
+        <span id="civBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">การประยุกต์ใช้อุตสาหกรรม & อาหาร/ยา</span>
+        <h3 id="civTitle" class="text-sm font-bold text-white mt-2"></h3>
+        <p id="civDescription" class="text-xs text-slate-300 leading-relaxed mt-1.5"></p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const MODS = {
+      transport:{
+        xylem:{icon:"💧",btn_th:"ท่อน้ำ (Xylem)",btn_en:"Xylem Vessels",s_th:"แรงดึงคายน้ำจากรากสู่ยอด",s_en:"Transpiration pull root-to-top",title_th:"ท่อลำเลียงน้ำ (Xylem)",title_en:"Xylem Water Transport",sub:"Cohesion-Tension Theory",p1L_th:"แรงดึงลบ:",p1L_en:"Tension:",p1V:"-1.5 to -3.0 MPa",p2L_th:"อัตราไหล:",p2L_en:"Flow Rate:",p2V:"15 - 45 m/hr",desc_th:"แรงดึงจากการคายน้ำผ่านปากใบดึงสายน้ำที่เชื่อมด้วยพันธะไฮโดรเจนขึ้นสู่ยอดไม้สูง",desc_en:"Evaporation at stomata creates negative pressure pulling H-bonded water columns up tall trees.",b_th:["น้ำสีฟ้าพุ่งขึ้นด้านบน","ผนังลิกนินป้องกันท่อแฟบ"],b_en:["Blue H₂O packets ascend","Lignin rings prevent vessel collapse"],civT_th:"ไม้และเยื่อกระดาษ",civT_en:"Timber & Wood Pulp Paper",civD_th:"ท่อไซเลมคือเนื้อไม้ที่อุดมด้วยเซลลูโลส ใช้ทำกระดาษและวัสดุก่อสร้าง",civD_en:"Lignified xylem forms wood, supplying cellulose fibers for paper and construction."},
+        phloem:{icon:"🍯",btn_th:"ท่ออาหาร (Phloem)",btn_en:"Phloem Sieve Tubes",s_th:"ส่งซูโครสจากใบสู่ราก-ผล",s_en:"Sucrose Source-to-Sink flow",title_th:"ท่อลำเลียงอาหาร (Phloem)",title_en:"Phloem Sugar Transport",sub:"Pressure-Flow Hypothesis",p1L_th:"สารลำเลียง:",p1L_en:"Solute:",p1V:"Sucrose 10-25%",p2L_th:"ทิศทาง:",p2L_en:"Direction:",p2V:"Source → Sink",desc_th:"แรงดันออสโมติกผลักน้ำตาลจากใบลงสู่ราก เมล็ด และผลไม้",desc_en:"Osmotic pressure pushes sucrose from photosynthetic leaves (source) to roots and fruits (sink).",b_th:["น้ำตาลสีทองไหลลงสู่ราก","อาศัย Companion Cell ช่วยโหลด"],b_en:["Golden sucrose flows downward","Loaded via companion cells"],civT_th:"แหล่งน้ำตาลและแป้งโลก",civT_en:"Global Sugar & Starch",civD_th:"น้ำตาลซูโครสในอ้อยและแป้งในพืชหัวเป็นอาหารหลักของมนุษย์",civD_en:"Phloem-transported sucrose becomes sugarcane sugar, maple syrup, and root starches."},
+        stoma:{icon:"👄",btn_th:"ปากใบ (Stoma)",btn_en:"Stomata Guard Cells",s_th:"เซลล์คุม K⁺ เปิด-ปิดตามแสง",s_en:"Light & K⁺ Turgor Gating",title_th:"ปากใบและเซลล์คุม (Stoma)",title_en:"Stomatal Complex & Guard Cells",sub:"K⁺ & Turgor Gating",p1L_th:"ตัวกระตุ้น:",p1L_en:"Trigger:",p1V:"Blue Light & K⁺",p2L_th:"ฮอร์โมนปิด:",p2L_en:"Close Signal:",p2V:"ABA Hormone",desc_th:"เมื่อมีแสงแดด เซลล์คุมสูบ K⁺ และน้ำเข้าจนเต่งโก่งเปิดรูปากใบ",desc_en:"Sunlight triggers K⁺ and water influx into guard cells, bowing them open for CO₂ intake.",b_th:["เลื่อนแถบแสงแดดเพื่อดูการเปิด-ปิด","ระบายไอน้ำควบคุมอุณหภูมิใบ"],b_en:["Slide sunlight to open/close pore","Regulates leaf cooling & transpiration"],civT_th:"วัฏจักรน้ำและภูมิอากาศ",civT_en:"Climate & Water Cycle",civD_th:"การคายน้ำของป่าไม้สร้างฝนและรักษาความชุ่มชื้นของระบบนิเวศ",civD_en:"Forest transpiration generates 'flying rivers' sustaining regional rainfall."}
+      },
+      photosynth:{
+        C3:{icon:"🌾",btn_th:"พืช C3 (ข้าว/ไม้ป่า)",btn_en:"C3 Plants (Rice/Trees)",s_th:"Calvin Cycle โดยตรง",s_en:"Direct Calvin Cycle",title_th:"พืช C3 (ข้าว/ไม้ป่า)",title_en:"C3 Photosynthesis",sub:"Calvin Cycle (Rubisco)",p1L_th:"สารแรก:",p1L_en:"First Product:",p1V:"PGA (3C)",p2L_th:"จุดอ่อน:",p2L_en:"Limitation:",p2V:"Photorespiration",desc_th:"ตรึง CO₂ โดยตรงในมีโซฟิลล์ เหมาะกับอากาศปานกลางและน้ำเพียงพอ",desc_en:"Fixes CO₂ directly via Rubisco; 85% of plants including rice and wheat use C3.",b_th:["85% ของพืชบนโลกเป็น C3","เป็นแหล่งข้าวและธัญพืชหลัก"],b_en:["85% of terrestrial plants","Primary global grain crops"],civT_th:"ความมั่นคงทางอาหาร",civT_en:"Global Food Security",civD_th:"ข้าวเจ้า ข้าวสาลี ถั่วเหลือง คือพืช C3",civD_en:"Rice, wheat, and soybeans feed billions."},
+        C4:{icon:"🌽",btn_th:"พืช C4 (ข้าวโพด/อ้อย)",btn_en:"C4 Plants (Corn/Cane)",s_th:"Kranz Anatomy ทนแดดจัด",s_en:"Kranz Anatomy Heat-Tolerant",title_th:"พืช C4 (ข้าวโพด/อ้อย)",title_en:"C4 Photosynthesis",sub:"Kranz Anatomy (PEP Carboxylase)",p1L_th:"สารแรก:",p1L_en:"First Product:",p1V:"OAA (4C)",p2L_th:"ประหยัดน้ำ:",p2L_en:"Water Efficiency:",p2V:"2x vs C3",desc_th:"แยกห้องตรึงคาร์บอนเพื่อป้องกันการหายใจแสง เติบโตเร็วมากในแดดจัด",desc_en:"Separates CO₂ capture into mesophyll & bundle sheath cells to eliminate photorespiration.",b_th:["สร้างชีวมวลสูง","ทนร้อนแล้งได้ดีกว่า C3"],b_en:["High biomass productivity","Thrives in hot tropical sun"],civT_th:"น้ำตาลและเชื้อเพลิงชีวภาพ",civT_en:"Sugar & Biofuels",civD_th:"อ้อยและข้าวโพดผลิตน้ำตาลทรายและเอทานอลชีวภาพ",civD_en:"Sugarcane and maize produce sucrose and bioethanol."},
+        CAM:{icon:"🌵",btn_th:"พืช CAM (กระบองเพชร)",btn_en:"CAM Plants (Cactus)",s_th:"เปิดปากใบกลางคืน",s_en:"Nighttime Stomatal Opening",title_th:"พืช CAM (กระบองเพชร/สับปะรด)",title_en:"CAM Photosynthesis",sub:"Night CO₂ Fixation",p1L_th:"เปิดปากใบ:",p1L_en:"Stomata Open:",p1V:"Night Only",p2L_th:"ประหยัดน้ำ:",p2L_en:"Water Savings:",p2V:"5-10x vs C3",desc_th:"เก็บ CO₂ ในรูปกรดมาลิกตอนกลางคืน แล้วสังเคราะห์แสงตอนกลางวันขณะปิดปากใบ",desc_en:"Stores CO₂ as malic acid overnight and photosynthesizes by day with stomata sealed.",b_th:["ทนทะเลทรายขั้นสุด","ใบอวบน้ำเคลือบขี้ผึ้ง"],b_en:["Extreme desert survival","Succulent waxy leaves"],civT_th:"สมุนไพรและเส้นใยชีวภาพ",civT_en:"Skincare & Bio-Leather",civD_th:"ว่านหางจระเข้บำรุงผิวและเส้นใยใบสับปะรดทำหนังวีแกน",civD_en:"Aloe vera gels and pineapple leaf fibers (Piñatex)."}
+      },
+      ecology:{
+        pollinator:{icon:"🌸",btn_th:"ล่อแมลงผสมเกสร",btn_en:"Pollinator Attraction",s_th:"กลิ่น Floral VOCs & น้ำหวาน",s_en:"Floral VOCs & Nectar",title_th:"ล่อแมลงผสมเกสร (Floral VOCs)",title_en:"Floral VOCs & Pollination",sub:"Terpenes & Nectar",p1L_th:"สารสื่อสาร:",p1L_en:"Signals:",p1V:"Terpenes / Esters",p2L_th:"ผู้ช่วย:",p2L_en:"Pollinators:",p2V:"Bees, Butterflies",desc_th:"ปล่อยกลิ่นหอมและสีสะท้อน UV ดึงดูดแมลงมาผสมเกสรแลกกับน้ำหวาน",desc_en:"Emits volatile terpenes and UV nectar guides to attract bees and butterflies.",b_th:["กลิ่นฟุ้งกระจายตามลม","วิวัฒนาการร่วมกับแมลง 140 ล้านปี"],b_en:["Airborne scent plumes","140M-year co-evolution"],civT_th:"น้ำหอมและน้ำผึ้ง",civT_en:"Perfumery & Honey",civD_th:"สกัดน้ำมันหอมระเหยลาเวนเดอร์ กุหลาบ และผลิตน้ำผึ้ง",civD_en:"Lavender/rose essences and wildflower honey."},
+        defense:{icon:"🛡️",btn_th:"เตือนภัยศัตรูพืช",btn_en:"Defense Alarm (HIPVs)",s_th:"HIPVs เรียกแตนเบียน",s_en:"Calls Predator Wasps",title_th:"สัญญาณเตือนภัยพืช (HIPVs)",title_en:"Herbivore-Induced Plant Volatiles",sub:"Jasmonate Signaling",p1L_th:"สารเตือน:",p1L_en:"Alarm VOC:",p1V:"GLVs & Jasmonate",p2L_th:"พันธมิตร:",p2L_en:"Allies:",p2V:"Parasitoid Wasps",desc_th:"เมื่อถูกหนอนกัด พืชปล่อยสารระเหยเตือนต้นข้างเคียงและเรียกแมลงผู้ล่ามาช่วย",desc_en:"Attacked leaves emit airborne alerts warning neighbors and summoning predator wasps.",b_th:["สร้างแทนนินรสฝาดต้านแมลง","ป้องกันศัตรูพืชแบบชีววิธี"],b_en:["Triggers bitter tannin synthesis","Biological pest control"],civT_th:"สารสกัดไล่แมลงและฟอกหนัง",civT_en:"Bio-Pesticides & Tanning",civD_th:"สะเดาไล่แมลงและแทนนินจากเปลือกไม้ใช้ฟอกหนัง",civD_en:"Neem azadirachtin and bark tannins for leather."},
+        mycorrhiza:{icon:"🍄",btn_th:"ราไมคอร์ไรซา",btn_en:"Mycorrhizal Network",s_th:"Wood Wide Web ใต้ดิน",s_en:"Underground Wood Wide Web",title_th:"เครือข่ายราไมคอร์ไรซา",title_en:"Wood Wide Web (Mycorrhiza)",sub:"Symbiotic Root Network",p1L_th:"การแลกเปลี่ยน:",p1L_en:"Exchange:",p1V:"Sugars ↔ Phosphorus",p2L_th:"พื้นที่ดูดซึม:",p2L_en:"Surface Gain:",p2V:"1,000x",desc_th:"เส้นใยราเชื่อมรากไม้ทั้งป่า ส่งอาหารและสัญญาณเตือนภัยใต้ดิน",desc_en:"Fungal hyphae link forest roots to share nutrients and underground defense signals.",b_th:["Mother trees เลี้ยงลูกไม้","ทนแล้งและโรคระบาด"],b_en:["Mother trees nourish seedlings","Boosts drought resilience"],civT_th:"เห็ดป่าและปุ๋ยชีวภาพ",civT_en:"Truffles & Bio-Fertilizers",civD_th:"เห็ดทรัฟเฟิลและปุ๋ยไมคอร์ไรซาช่วยฟื้นฟูดิน",civD_en:"Forest truffles and regenerative agriculture."}
+      },
+      evolution:{
+        bryo:{icon:"🌱",btn_th:"มอสส์ (470 ล้านปี)",btn_en:"Mosses (470 Ma)",s_th:"ไร้ท่อลำเลียง สเปิร์มว่ายน้ำ",s_en:"Non-vascular, swimming sperm",title_th:"พืชมอสส์ (470 ล้านปี)",title_en:"Ordovician Bryophytes (470 Ma)",sub:"Non-Vascular Pioneers",p1L_th:"ท่อลำเลียง:",p1L_en:"Vascular:",p1V:"None",p2L_th:"การสืบพันธุ์:",p2L_en:"Reproduction:",p2V:"Flagellated Sperm",desc_th:"ขึ้นบกยุคแรก ต้นเตี้ยติดดิน ไม่มีลิกนิน และดูดซับน้ำผ่านใบเทียม",desc_en:"First land plants; low-lying without lignin, requiring water films for sperm.",b_th:["ต้นเด่นคือ Gametophyte (n)","สร้างชั้นดินยุคแรกของโลก"],b_en:["Haploid gametophyte dominant","Formed Earth's earliest soils"],civT_th:"สแฟกนัมมอสส์เพาะชำ",civT_en:"Sphagnum Peat Moss",civD_th:"Peat moss อุ้มน้ำได้ 20 เท่า ใช้เพาะเลี้ยงไม้ประดับ",civD_en:"Holds 20x its weight in water for horticulture."},
+        ferns:{icon:"🌿",btn_th:"เฟิร์น (410 ล้านปี)",btn_en:"Ferns (410 Ma)",s_th:"กำเนิดลิกนิน & ท่อลำเลียง",s_en:"First Lignin & Xylem",title_th:"เฟิร์นโบราณ (410 ล้านปี)",title_en:"Devonian Pteridophytes (410 Ma)",sub:"First Vascular Forests",p1L_th:"นวัตกรรม:",p1L_en:"Innovation:",p1V:"Xylem & Lignin",p2L_th:"ขนาด:",p2L_en:"Height:",p2V:"30m Tree Ferns",desc_th:"กำเนิดท่อลำเลียงและลิกนิน ทำให้ลำต้นตั้งตรงสูงใหญ่ได้",desc_en:"Lignin-reinforced xylem enabled 30-meter prehistoric fern forests.",b_th:["สืบพันธุ์ด้วยสปอร์","ทับถมเป็นถ่านหินยุคคาร์บอนิเฟอรัส"],b_en:["Spore-bearing fronds","Formed Carboniferous coal beds"],civT_th:"ถ่านหินพลังงานโลก",civT_en:"Fossil Coal Deposits",civD_th:"ซากป่าเฟิร์นโบราณกลายเป็นถ่านหินผลิตกระแสไฟฟ้า",civD_en:"Ancient fern forests became global coal reserves."},
+        gymno:{icon:"🌲",btn_th:"สน (300 ล้านปี)",btn_en:"Conifers (300 Ma)",s_th:"เมล็ดเปลือย & ละอองเรณู",s_en:"Naked Seeds & Pollen",title_th:"พืชเมล็ดเปลือย (300 ล้านปี)",title_en:"Gymnosperms & Conifers (300 Ma)",sub:"Seeds & Wind Pollination",p1L_th:"นวัตกรรม:",p1L_en:"Innovation:",p1V:"Seeds & Pollen",p2L_th:"ใบ:",p2L_en:"Foliage:",p2V:"Waxy Needles",desc_th:"ไม่อาศัยหยดน้ำในการปฏิสนธิ ปรับตัวทนอากาศแห้งและหนาวเย็น",desc_en:"Pollen eliminated water dependency; needle leaves survived arid & icy climates.",b_th:["ลมพัดละอองเรณู","มียางสนป้องกันแมลง"],b_en:["Wind-borne pollen","Protective resin canals"],civT_th:"ไม้สน อำพัน และกิงโกะ",civT_en:"Softwood, Amber & Ginkgo",civD_th:"เนื้อไม้สนทำกระดาษ ยางสนเป็นอำพัน และใบแปะก๊วยบำรุงสมอง",civD_en:"Pine timber/pulp, fossilized amber, and Ginkgo extracts."},
+        angio:{icon:"🌺",btn_th:"พืชดอก (140 ล้านปี)",btn_en:"Flowering Plants (140 Ma)",s_th:"ดอก ผล & แมลงผสมเกสร",s_en:"Flowers, Fruits & Vessels",title_th:"พืชดอก (140 ล้านปี - ปัจจุบัน)",title_en:"Angiosperms (140 Ma – Present)",sub:"Flowers & Fruits",p1L_th:"นวัตกรรม:",p1L_en:"Innovation:",p1V:"Flowers & Vessels",p2L_th:"สัดส่วน:",p2L_en:"Dominance:",p2V:">90% Land Plants",desc_th:"วิวัฒนาการร่วมกับแมลง มีรังไข่หุ้มเมล็ดและท่อลำเลียงประสิทธิภาพสูง",desc_en:"Co-evolved with pollinators; enclosed seeds and high-flow xylem vessels.",b_th:["Double Fertilization","ครองระบบนิเวศบกทุกทวีป"],b_en:["Double fertilization","90%+ of modern flora"],civT_th:"รากฐานเกษตรกรรมโลก",civT_en:"Foundation of Agriculture",civD_th:"ข้าว ผลไม้ ผัก ฝ้าย กาแฟ และยาสมุนไพรล้วนเป็นพืชดอก",civD_en:"Grains, fruits, cotton, coffee, and medicines."}
+      },
+      materials:{
+        paper:{icon:"📜",btn_th:"เยื่อกระดาษ",btn_en:"Wood Pulp Paper",s_th:"เส้นใยเซลลูโลส",s_en:"Cellulose Microfibrils",title_th:"การทำกระดาษจากเยื่อไม้",title_en:"Wood Pulp & Cellulose Paper",sub:"Cellulose Fibers",p1L_th:"องค์ประกอบ:",p1L_en:"Polymer:",p1V:"Cellulose 45%",p2L_th:"แรงยึดแผ่น:",p2L_en:"Bonding:",p2V:"Hydrogen Bonds",desc_th:"ต้มแยกกาวลิกนินออกจากเนื้อไม้ แล้วรีดเส้นใยเซลลูโลสให้ยึดกันด้วยพันธะไฮโดรเจน",desc_en:"Pulping removes lignin so cellulose microfibrils lock together via hydrogen bonds.",b_th:["รีไซเคิลได้หลายรอบ","เป็นมิตรต่อสิ่งแวดล้อม"],b_en:["Recyclable natural polymer","Biodegradable sheets"],civT_th:"บันทึกอารยธรรมมนุษย์",civT_en:"Books & Packaging",civD_th:"หนังสือ สมุด กล่องพัสดุ และเยื่อกระดาษชำระ",civD_en:"Printing paper, corrugated boxes, and tissues."},
+        dyes:{icon:"🎨",btn_th:"สีย้อมธรรมชาติ",btn_en:"Natural Plant Dyes",s_th:"คราม ขมิ้น อัญชัน",s_en:"Indigo, Curcumin, Anthocyanin",title_th:"สีย้อมธรรมชาติจากพืช",title_en:"Natural Plant Pigments & Dyes",sub:"Indigo, Curcumin, Anthocyanin",p1L_th:"สีน้ำเงิน:",p1L_en:"Blue Dye:",p1V:"Indigo",p2L_th:"สีเหลือง/ม่วง:",p2L_en:"Yellow/Purple:",p2V:"Curcumin / Butterfly Pea",desc_th:"สกัดรงควัตถุจากใบ ราก และดอกไม้มาแต้มสีผ้าและอาหาร",desc_en:"Plant pigments evolved for UV shielding & attraction dye textiles and foods naturally.",b_th:["ย่อยสลายได้ 100%","เคอร์คูมินต้านการอักเสบ"],b_en:["100% biodegradable","Curcumin has anti-inflammatory power"],civT_th:"ผ้าครามและสีผสมอาหาร",civT_en:"Indigo Denim & Food Colors",civD_th:"ผ้าย้อมคราม ยีนส์เดนิม และสีผสมอาหารออร์แกนิก",civD_en:"Traditional indigo textiles and organic food coloring."},
+        scents:{icon:"🧪",btn_th:"น้ำมันหอมระเหย",btn_en:"Essential Oils",s_th:"ลิแนลออล ลิโมนีน ไพเนน",s_en:"Linalool, Limonene, Pinene",title_th:"น้ำมันหอมระเหย (Essential Oils)",title_en:"Plant Essential Oils & Aromas",sub:"Terpenes & Aromatics",p1L_th:"สารหอม:",p1L_en:"Compounds:",p1V:"Linalool / Limonene",p2L_th:"วิธีสกัด:",p2L_en:"Extraction:",p2V:"Steam Distillation",desc_th:"กลั่นไอน้ำแยกน้ำมันหอมระเหยจากกลีบดอก เปลือกส้ม และใบสน",desc_en:"Steam distillation isolates volatile terpenes from petals, citrus peels, and pine needles.",b_th:["ระเหยไวและมีฤทธิ์ผ่อนคลาย","ไล่ยุงด้วยตะไคร้หอม"],b_en:["Calming aromatherapy effects","Citronella natural insect repellent"],civT_th:"สุคนธบำบัดและน้ำหอม",civT_en:"Perfumery & Aromatherapy",civD_th:"สปาอโรมา เครื่องสำอาง และสเปรย์ไล่แมลงธรรมชาติ",civD_en:"Luxury perfumes, spa oils, and bio-repellents."},
+        medicine:{icon:"💊",btn_th:"ยารักษาโรค",btn_en:"Phytomedicine",s_th:"ควินิน แอสไพริน อาร์ทีมิซินิน",s_en:"Quinine, Aspirin, Artemisinin",title_th:"ยารักษาโรคจากพืช",title_en:"Phytopharmaceuticals",sub:"Alkaloids & Glycosides",p1L_th:"แก้ปวด:",p1L_en:"Painkiller:",p1V:"Salicin → Aspirin",p2L_th:"ต้านมาลาเรีย:",p2L_en:"Antimalarial:",p2V:"Quinine & Artemisinin",desc_th:"สารทุติยภูมิที่พืชใช้ป้องกันตัว กลายเป็นยาช่วยชีวิตมนุษย์กว่า 40% ของยาแผนปัจจุบัน",desc_en:"Plant defense alkaloids & glycosides inspire over 40% of modern pharmaceuticals.",b_th:["เปลือกซิงโคนารักษาไข้ป่า","เปลือกวิลโลว์สู่แอสไพริน"],b_en:["Cinchona bark quinine","Willow bark salicin → Aspirin"],civT_th:"เภสัชเวทสมัยใหม่",civT_en:"Modern Pharmacognosy",civD_th:"การอนุรักษ์ป่าไม้คือการรักษาคลังยารักษาโรคในอนาคต",civD_en:"Conserving forests preserves future life-saving drugs."}
+      }
+    };
+
+    let lang="th";
+    try{const s=localStorage.getItem("applied_sim_lang");if(s==="en"||s==="th")lang=s;}catch(e){}
+    const state={mode:"transport",subMode:"xylem",sunlight:75,moisture:65};
+    const container=document.getElementById("threeContainer"),scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(48,1,0.1,1000),renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setClearColor(0x040d0a,1);container.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xdcfce7,0.8));const sunLight=new THREE.DirectionalLight(0xfef08a,1.4);sunLight.position.set(25,45,30);scene.add(sunLight);
+    const plantGroup=new THREE.Group();scene.add(plantGroup);
+
+    const cam={r:34,tr:34,th:0.3,ph:1.3,tth:0.3,tph:1.3};
+    function resetCam(){cam.tr=34;cam.tth=0.3;cam.tph=1.3;}
+    let drag=false,prev={x:0,y:0};
+    renderer.domElement.addEventListener("pointerdown",e=>{drag=true;prev={x:e.clientX,y:e.clientY};});
+    window.addEventListener("pointermove",e=>{if(!drag)return;cam.tth-=(e.clientX-prev.x)*0.0075;cam.tph=Math.max(0.2,Math.min(Math.PI-0.2,cam.tph-(e.clientY-prev.y)*0.0075));prev={x:e.clientX,y:e.clientY};});
+    window.addEventListener("pointerup",()=>drag=false);
+    renderer.domElement.addEventListener("wheel",e=>{e.preventDefault();cam.tr=Math.max(8,Math.min(75,cam.tr+e.deltaY*0.03));},{passive:false});
+    function resize(){const w=container.clientWidth||800,h=container.clientHeight||480;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
+    window.addEventListener("resize",resize);
+
+    let waterPts=[],sugarPts=[],lip1=null,lip2=null,chemPts=[];
+    function buildScene(){
+      while(plantGroup.children.length)plantGroup.remove(plantGroup.children[0]);
+      waterPts=[];sugarPts=[];chemPts=[];lip1=null;lip2=null;
+      const wood=new THREE.MeshStandardMaterial({color:0x5b3a29}),leaf=new THREE.MeshStandardMaterial({color:0x15803d,side:THREE.DoubleSide});
+      if(state.mode==="transport"){
+        if(state.subMode==="stoma"){
+          const fl=new THREE.Mesh(new THREE.PlaneGeometry(14,14),leaf);fl.rotation.x=Math.PI/2;plantGroup.add(fl);
+          const gm=new THREE.MeshStandardMaterial({color:0x4ade80});
+          lip1=new THREE.Mesh(new THREE.TorusGeometry(2.4,0.7,14,28,Math.PI),gm);lip1.rotation.set(Math.PI/2,0,Math.PI/2);lip1.position.x=-0.6;
+          lip2=new THREE.Mesh(new THREE.TorusGeometry(2.4,0.7,14,28,Math.PI),gm);lip2.rotation.set(Math.PI/2,0,-Math.PI/2);lip2.position.x=0.6;
+          plantGroup.add(lip1,lip2);
+        }else{
+          plantGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(4,4.2,16,24,1,true,0,Math.PI*1.5),wood));
+          for(let i=0;i<6;i++){const a=i/6*Math.PI*1.4+0.2,x=Math.cos(a)*2.2,z=Math.sin(a)*2.2;plantGroup.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,16.5,12),new THREE.MeshStandardMaterial({color:0x0284c7,transparent:true,opacity:0.45})),{position:new THREE.Vector3(x,0,z)}));for(let k=0;k<3;k++){const w=new THREE.Mesh(new THREE.SphereGeometry(0.24,10,10),new THREE.MeshBasicMaterial({color:0x38bdf8}));w.position.set(x,-7+k*5,z);plantGroup.add(w);waterPts.push(w);}}
+          for(let i=0;i<6;i++){const a=i/6*Math.PI*1.4+0.4,x=Math.cos(a)*3.3,z=Math.sin(a)*3.3;for(let k=0;k<3;k++){const s=new THREE.Mesh(new THREE.SphereGeometry(0.22,10,10),new THREE.MeshBasicMaterial({color:0xfbbf24}));s.position.set(x,7-k*5,z);plantGroup.add(s);sugarPts.push(s);}}
+        }
+      }else if(state.mode==="photosynth"){
+        plantGroup.add(new THREE.Mesh(new THREE.BoxGeometry(12,0.8,12),leaf));
+        for(let i=0;i<9;i++){const c=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,0.5,16),new THREE.MeshStandardMaterial({color:0x22c55e}));c.position.set(((i%3)-1)*3.4,0.5,(Math.floor(i/3)-1)*3.4);plantGroup.add(c);}
+      }else if(state.mode==="ecology"){
+        plantGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1.2,18,18),new THREE.MeshStandardMaterial({color:0xf59e0b})));
+        for(let i=0;i<8;i++){const a=i/8*Math.PI*2,p=new THREE.Mesh(new THREE.CylinderGeometry(0.7,1.2,3,12),new THREE.MeshStandardMaterial({color:state.subMode==="defense"?0x10b981:0xf43f5e}));p.position.set(Math.cos(a)*2.2,0,Math.sin(a)*2.2);p.rotation.z=Math.PI/2;p.rotation.y=-a;plantGroup.add(p);}
+        for(let v=0;v<20;v++){const m=new THREE.Mesh(new THREE.SphereGeometry(0.22,8,8),new THREE.MeshBasicMaterial({color:0xf472b6}));m.position.set((Math.random()-0.5)*10,(Math.random()-0.5)*4,(Math.random()-0.5)*10);plantGroup.add(m);chemPts.push({m,sp:0.04});}
+      }else if(state.mode==="evolution"){
+        if(state.subMode==="bryo"){plantGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(6,6,1,24),new THREE.MeshStandardMaterial({color:0x14532d})));for(let i=0;i<30;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(0.3,1.2,8),new THREE.MeshStandardMaterial({color:0x4ade80}));c.position.set((Math.random()-0.5)*9,0.8,(Math.random()-0.5)*9);plantGroup.add(c);}}
+        else{const t=new THREE.Mesh(new THREE.CylinderGeometry(1,1.4,11,14),wood);t.position.y=5;plantGroup.add(t);const cn=new THREE.Mesh(state.subMode==="gymno"?new THREE.ConeGeometry(4.5,7,18):new THREE.SphereGeometry(4.5,20,20),leaf);cn.position.y=11;plantGroup.add(cn);}
+      }else{
+        if(state.subMode==="paper"){for(let s=0;s<4;s++){const sh=new THREE.Mesh(new THREE.BoxGeometry(8,0.18,10),new THREE.MeshStandardMaterial({color:0xf8fafc}));sh.position.y=s*0.5;plantGroup.add(sh);}}
+        else if(state.subMode==="dyes"){[0x1e40af,0xfacc15,0xbe123c].forEach((c,i)=>{const r=new THREE.Mesh(new THREE.BoxGeometry(1.8,7,0.12),new THREE.MeshStandardMaterial({color:c}));r.position.set((i-1)*2.4,4,0);plantGroup.add(r);});}
+        else{const fl=new THREE.Mesh(new THREE.CylinderGeometry(1.5,3,6,20),new THREE.MeshStandardMaterial({color:0x38bdf8,transparent:true,opacity:0.45}));fl.position.y=3;plantGroup.add(fl);const lq=new THREE.Mesh(new THREE.CylinderGeometry(1.4,2.8,3.2,20),new THREE.MeshStandardMaterial({color:state.subMode==="scents"?0xf59e0b:0x10b981}));lq.position.y=1.8;plantGroup.add(lq);}
+      }
+    }
+
+    function renderSubPanels(){
+      const en=lang==="en";
+      [["transport","panelTransport"],["photosynth","panelPhotosynth"],["ecology","panelEcology"],["evolution","panelEvolution"],["materials","panelMaterials"]].forEach(([mk,pid])=>{
+        const p=document.getElementById(pid);p.innerHTML="";
+        Object.entries(MODS[mk]).forEach(([sk,obj])=>{
+          const act=state.mode===mk&&state.subMode===sk;
+          const b=document.createElement("button");
+          b.className=`p-2 rounded-xl border text-left transition ${act?"border-emerald-400 bg-emerald-950/40":"border-slate-800 bg-slate-900/60 hover:bg-slate-800"}`;
+          b.innerHTML=`<div class="text-xs font-bold text-white">${en?obj.btn_en:obj.btn_th}</div><div class="text-[10px] text-slate-400">${en?obj.s_en:obj.s_th}</div>`;
+          b.addEventListener("click",()=>setMode(mk,sk));
+          p.appendChild(b);
+        });
+      });
+    }
+
+    function setMode(m,s){
+      state.mode=m;state.subMode=s||(m==="transport"?"xylem":m==="photosynth"?"C3":m==="ecology"?"pollinator":m==="evolution"?"angio":"paper");
+      const en=lang==="en";
+      document.documentElement.lang=lang;
+      document.getElementById("btnLangToggle").textContent=en?"🌐 EN → TH":"🌐 TH → EN";
+      document.getElementById("hdrSub").textContent=en?"Vascular Transport • C3/C4/CAM • VOCs • 500M-Yr Evolution • Paper/Dyes/Scents/Medicine":"ท่อลำเลียง • สังเคราะห์แสง C3/C4/CAM • สารสื่อสาร VOCs • วิวัฒนาการ 500 ล้านปี • กระดาษ สี กลิ่น ยา";
+      document.getElementById("btnResetCamera").textContent=en?"🎯 Reset Camera":"🎯 รีเซ็ตกล้อง";
+      document.getElementById("lblSun").textContent=en?"☀️ Sun:":"☀️ แสง:";
+      document.getElementById("lblMoist").textContent=en?"🌧️ Moisture:":"🌧️ ความชื้น:";
+      document.getElementById("hudTips").textContent=en?"🖱️ Drag to Orbit 360° • 🔍 Scroll to Zoom":"🖱️ ลากหมุน 360° • 🔍 ซูม";
+      document.getElementById("civBadge").textContent=en?"Industry, Food & Medical Applications":"การประยุกต์ใช้อุตสาหกรรม & อาหาร/ยา";
+
+      const tabLabels={Transport:en?"💧 Transport":"💧 ลำเลียงน้ำ-อาหาร",Photosynth:en?"☀️ Photosynthesis":"☀️ สังเคราะห์แสง",Ecology:en?"🐝 Ecology VOCs":"🐝 สารสื่อสาร VOCs",Evolution:en?"⏳ Evolution":"⏳ วิวัฒนาการ",Materials:en?"📜 Bio-Materials":"📜 กระดาษ/สี/กลิ่น/ยา"};
+      ["Transport","Photosynth","Ecology","Evolution","Materials"].forEach(k=>{const b=document.getElementById("tabBtn"+k),p=document.getElementById("panel"+k),act=k.toLowerCase()===m;if(b){b.textContent=tabLabels[k];b.className=act?"px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950":"px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800";}if(p)p.classList.toggle("hidden",!act);});
+      renderSubPanels();
+
+      const mod=MODS[state.mode][state.subMode];
+      document.getElementById("hudIconBadge").textContent=mod.icon;document.getElementById("hudTitle").textContent=en?mod.title_en:mod.title_th;document.getElementById("hudSubtitle").textContent=mod.sub;
+      document.getElementById("inspectorBadgeBox").textContent=mod.icon;document.getElementById("inspectorHeading").textContent=en?mod.title_en:mod.title_th;document.getElementById("inspectorSubHeading").textContent=mod.sub;
+      document.getElementById("param1Label").textContent=en?mod.p1L_en:mod.p1L_th;document.getElementById("param1Value").textContent=mod.p1V;
+      document.getElementById("param2Label").textContent=en?mod.p2L_en:mod.p2L_th;document.getElementById("param2Value").textContent=mod.p2V;
+      document.getElementById("inspectorDescription").textContent=en?mod.desc_en:mod.desc_th;
+      document.getElementById("inspectorBullets").innerHTML=(en?mod.b_en:mod.b_th).map(b=>`<li>${b}</li>`).join("");
+      document.getElementById("civTitle").textContent=en?mod.civT_en:mod.civT_th;document.getElementById("civDescription").textContent=en?mod.civD_en:mod.civD_th;
+      document.getElementById("hudDynamicNote").textContent=(en?"Active: ":"กำลังแสดง: ")+(en?mod.title_en:mod.title_th);
+      buildScene();
+    }
+
+    document.getElementById("btnBackHub").addEventListener("click",()=>{window.location.href="index.html";});
+    document.getElementById("btnLangToggle").addEventListener("click",()=>{lang=lang==="th"?"en":"th";try{localStorage.setItem("applied_sim_lang",lang);}catch(e){}setMode(state.mode,state.subMode);});
+    document.getElementById("tabBtnTransport").addEventListener("click",()=>setMode("transport"));
+    document.getElementById("tabBtnPhotosynth").addEventListener("click",()=>setMode("photosynth"));
+    document.getElementById("tabBtnEcology").addEventListener("click",()=>setMode("ecology"));
+    document.getElementById("tabBtnEvolution").addEventListener("click",()=>setMode("evolution"));
+    document.getElementById("tabBtnMaterials").addEventListener("click",()=>setMode("materials"));
+    document.getElementById("btnResetCamera").addEventListener("click",resetCam);
+    document.getElementById("sunlightSlider").addEventListener("input",e=>{state.sunlight=Number(e.target.value);sunLight.intensity=(state.sunlight/100)*1.8;if(lip1&&lip2){const g=0.3+(state.sunlight/100)*0.9;lip1.position.x=-g;lip2.position.x=g;}});
+    document.getElementById("moistureSlider").addEventListener("input",e=>state.moisture=Number(e.target.value));
+
+    let clk=new THREE.Clock();
+    function animate(){requestAnimationFrame(animate);const el=clk.getElapsedTime();
+      cam.r+=(cam.tr-cam.r)*0.08;cam.th+=(cam.tth-cam.th)*0.08;cam.ph+=(cam.tph-cam.ph)*0.08;
+      camera.position.set(cam.r*Math.sin(cam.ph)*Math.sin(cam.th),cam.r*Math.cos(cam.ph),cam.r*Math.sin(cam.ph)*Math.cos(cam.th));camera.lookAt(0,3,0);
+      waterPts.forEach(w=>{w.position.y+=0.08*(state.sunlight/70);if(w.position.y>8)w.position.y=-8;});
+      sugarPts.forEach(s=>{s.position.y-=0.06;if(s.position.y<-8)s.position.y=8;});
+      chemPts.forEach(c=>{c.m.position.y+=c.sp;if(c.m.position.y>6)c.m.position.y=-2;});
+      plantGroup.rotation.y=el*0.05;renderer.render(scene,camera);
+    }
+    window.addEventListener("load",()=>{resize();setMode("transport","xylem");animate();});
+  </script>
+</body>
+</html>

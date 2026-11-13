@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Periodic Table, Quantum Orbitals, Chemical Reactions & Advanced Materials Simulation</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: 'Noto Sans Thai', 'Inter', sans-serif; background-color: #060a12; color: #f1f5f9; overflow-x: hidden; }
+    .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(14px); border: 1px solid rgba(148, 163, 184, 0.16); }
+    .elem-tile { transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; user-select: none; }
+    .elem-tile:hover { transform: translateY(-3px) scale(1.08); z-index: 20; box-shadow: 0 8px 20px -4px rgba(56, 189, 248, 0.45); }
+    .elem-tile.active-elem { outline: 2px solid #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.65); transform: scale(1.06); z-index: 15; }
+    .ptable-grid { display: grid; grid-template-columns: repeat(18, minmax(34px, 1fr)); gap: 3px; }
+    canvas { display: block; outline: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#050811] text-slate-100">
+  <header class="glass-panel sticky top-0 z-30 px-3 sm:px-4 py-2 border-b border-slate-800/80">
+    <div class="max-w-[1680px] mx-auto flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5">
+        <button id="btnBackHub" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition">← Hub</button>
+        <div>
+          <h1 class="text-xs sm:text-sm md:text-base font-bold bg-gradient-to-r from-cyan-300 via-sky-200 to-indigo-300 bg-clip-text text-transparent">
+            3D Periodic Table, Quantum Orbitals & Advanced Matter Simulation
+          </h1>
+          <p id="hdrSub" class="text-[10px] sm:text-[11px] text-slate-400 hidden sm:block">ครบ 118 ธาตุ • ควอนตัมออร์บิทัล 3D • ปฏิกิริยาเคมี • 8 วัสดุล้ำยุค & 4 ภาคอุตสาหกรรม</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-1 bg-slate-900/95 p-1 rounded-xl border border-slate-800">
+        <button id="tabBtnTable" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-cyan-500 text-slate-950">🌐 ตารางธาตุ 3D & 2D</button>
+        <button id="tabBtnAtom" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">⚛ โครงสร้างอะตอม & ควอนตัม</button>
+        <button id="tabBtnReaction" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">💥 ปฏิกิริยาเคมี 3D</button>
+        <button id="tabBtnMaterials" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">🧪 8 วัสดุ & แรงฟิสิกส์</button>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btnLangToggle" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">🌐 TH / EN</button>
+        <button id="btnToggleSound" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800/90 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">🔊 เสียง: ปิด</button>
+        <button id="btnResetCamera" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition">🎯 รีเซ็ตกล้อง</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-[1680px] w-full mx-auto p-2.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+    <div class="lg:col-span-8 flex flex-col gap-3">
+      <div class="relative rounded-2xl overflow-hidden border border-slate-800/90 bg-[#040711] shadow-2xl flex flex-col h-[400px] sm:h-[470px] lg:h-[510px]">
+        <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+          <div class="glass-panel px-3 py-2 rounded-xl pointer-events-auto flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400/50 flex flex-col items-center justify-center shrink-0">
+              <span id="hudAtomicNum" class="text-[9px] text-cyan-300 leading-none">8</span>
+              <span id="hudSymbol" class="text-base font-bold text-white leading-tight">O</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="hudTitle" class="text-xs sm:text-sm font-bold text-white">Oxygen (ออกซิเจน)</span>
+                <span id="hudCategoryBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">อโลหะ</span>
+              </div>
+              <p id="hudSubtitle" class="text-[11px] text-slate-300 mt-0.5">มวลอะตอม: 15.999 u | ระดับพลังงาน: 2, 6</p>
+            </div>
+          </div>
+
+          <div class="glass-panel px-2.5 py-1.5 rounded-xl pointer-events-auto flex flex-wrap items-center gap-1.5">
+            <div id="table3DSubBtns" class="flex items-center gap-1">
+              <button data-layout="table" id="layTable" class="layout-btn px-2 py-1 rounded text-[11px] font-medium bg-cyan-500 text-slate-950">ตาราง 3D</button>
+              <button data-layout="sphere" id="laySphere" class="layout-btn px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-300">ทรงกลม</button>
+              <button data-layout="helix" id="layHelix" class="layout-btn px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-300">เกลียวคู่</button>
+            </div>
+            <div id="atom3DSubBtns" class="hidden flex flex-wrap items-center gap-1.5">
+              <button id="btnModelBohr" class="px-2 py-1 rounded text-[11px] font-semibold bg-cyan-500 text-slate-950">🪐 บอร์</button>
+              <button id="btnModelQuantum" class="px-2 py-1 rounded text-[11px] font-semibold text-slate-300 bg-slate-800">☁️ ควอนตัม (s,p,d,f)</button>
+              <select id="quantumOrbitalSelect" class="hidden bg-slate-900 border border-slate-700 text-cyan-300 text-[11px] px-2 py-1 rounded">
+                <option value="all">All Orbitals</option>
+                <option value="s">s-orbital</option>
+                <option value="p">p-orbitals</option>
+                <option value="d">d-orbitals</option>
+                <option value="f">f-orbitals</option>
+              </select>
+              <input id="atomSpeedSlider" type="range" min="0" max="3" step="0.1" value="1" class="w-14 accent-cyan-400" />
+              <button id="btnToggleNucleusExplode" class="px-2 py-1 rounded text-[11px] bg-slate-800 text-amber-300 border border-amber-500/30">แยกนิวเคลียส</button>
+            </div>
+            <div id="reaction3DSubBtns" class="hidden flex items-center gap-2">
+              <button id="btnTriggerReaction" class="px-3 py-1 rounded text-[11px] font-bold bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950">⚡ สั่งทำปฏิกิริยา</button>
+              <button id="btnResetReaction" class="px-2.5 py-1 rounded text-[11px] bg-slate-800 text-slate-300 border border-slate-700">🔄 รีเซ็ต</button>
+            </div>
+            <div id="material3DSubBtns" class="hidden flex items-center gap-2">
+              <span id="materialActionLabel" class="text-[11px] text-cyan-300">แรงกระทำ:</span>
+              <input id="materialParamSlider" type="range" min="0" max="100" value="35" class="w-24 accent-cyan-400" />
+              <button id="btnMaterialPulse" class="px-2.5 py-1 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/40">⚡ ทดสอบแรง</button>
+            </div>
+          </div>
+        </div>
+        <div id="threeContainer" class="w-full h-full flex-1 cursor-grab active:cursor-grabbing"></div>
+        <div class="absolute bottom-2.5 left-3 right-3 z-10 flex justify-between pointer-events-none">
+          <div id="hudTips" class="glass-panel px-3 py-1 rounded-lg text-[11px] text-slate-300">🖱️ ลากหมุน 360° • 🔍 ลูกกลิ้งซูม</div>
+          <div id="hudDynamicNote" class="glass-panel px-3 py-1 rounded-lg text-[11px] text-cyan-300">กำลังแสดง: ตารางธาตุ 3 มิติ</div>
+        </div>
+      </div>
+
+      <!-- 8 Materials Bar -->
+      <div id="showcasesContainer" class="glass-panel rounded-2xl p-3 border border-slate-800/90">
+        <div id="scBarTitle" class="text-xs font-bold text-cyan-400 mb-2">🧪 8 ตัวอย่างการจับตัวทางกายภาพ & วัสดุล้ำยุค (คลิกเพื่อจำลอง 3D)</div>
+        <div id="scGridBtns" class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-1.5"></div>
+      </div>
+
+      <!-- Reactions Bar -->
+      <div id="reactionsContainer" class="hidden glass-panel rounded-2xl p-3 border border-slate-800/90">
+        <div id="rxBarTitle" class="text-xs font-bold text-amber-400 mb-2">💥 5 ปฏิกิริยาเคมี 3 มิติ</div>
+        <div id="rxGridBtns" class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-5 gap-2"></div>
+      </div>
+
+      <!-- 2D Periodic Grid -->
+      <div class="glass-panel rounded-2xl p-3 border border-slate-800/90">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <h2 id="gridHeading" class="text-xs sm:text-sm font-bold text-white">ตารางธาตุ 118 ธาตุ & ตัวกรอง 4 ภาคอุตสาหกรรม</h2>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <input id="searchInput" type="text" placeholder="ค้นหาธาตุ..." class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white w-32 sm:w-40" />
+            <select id="sectorFilter" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs text-amber-300">
+              <option value="all">🌍 All 4 Industry Sectors</option>
+              <option value="primary">🌾 1. Primary (Raw Materials)</option>
+              <option value="secondary">🏭 2. Secondary (Manufacturing)</option>
+              <option value="tertiary">🏥 3. Tertiary (Services)</option>
+              <option value="quaternary">🛰️ 4. Quaternary (Tech & AI)</option>
+            </select>
+            <select id="categoryFilter" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200">
+              <option value="all">All Categories</option>
+              <option value="alkali">Alkali</option>
+              <option value="alkaline">Alkaline Earth</option>
+              <option value="transition">Transition</option>
+              <option value="post-transition">Post-Transition</option>
+              <option value="metalloid">Metalloid</option>
+              <option value="nonmetal">Nonmetal</option>
+              <option value="noble">Noble Gas</option>
+              <option value="lanthanide">Lanthanide</option>
+              <option value="actinide">Actinide</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto"><div id="periodicGrid" class="ptable-grid min-w-[680px]"></div></div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-4 flex flex-col gap-3">
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800/90 flex flex-col gap-3">
+        <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <div id="infoSymbolBox" class="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border-2">
+              <span id="infoNumber" class="text-[10px] font-semibold">8</span>
+              <span id="infoSymbol" class="text-2xl font-extrabold leading-none">O</span>
+              <span id="infoMassShort" class="text-[9px]">15.999</span>
+            </div>
+            <div>
+              <h2 id="infoNameMain" class="text-base font-bold text-white">ออกซิเจน (Oxygen)</h2>
+              <p id="infoCategory" class="text-xs text-cyan-300">อโลหะ</p>
+              <p class="text-[11px] text-slate-400"><span id="infoPhase">Gas</span> • <span id="infoGroupPeriod">Group 16, Period 2</span></p>
+            </div>
+          </div>
+          <button id="btnFocusAtom3D" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-xs font-semibold">🔍 Atom 3D</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-2"><div class="text-[10px] text-rose-300">Protons (p⁺)</div><div id="infoProtons" class="text-sm font-bold text-rose-200">8</div></div>
+          <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2"><div class="text-[10px] text-amber-300">Neutrons (n⁰)</div><div id="infoNeutrons" class="text-sm font-bold text-amber-200">8</div></div>
+          <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-2"><div class="text-[10px] text-cyan-300">Electrons (e⁻)</div><div id="infoElectrons" class="text-sm font-bold text-cyan-200">8</div></div>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
+          <div class="flex justify-between text-xs"><span id="lblShells" class="text-slate-300 font-semibold">ชั้นอิเล็กตรอน</span><span id="infoConfigText" class="text-cyan-300 font-mono text-[11px]">2 - 6</span></div>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl p-2.5 border border-amber-500/20">
+          <div class="flex justify-between items-center"><span id="lblSector" class="text-xs font-bold text-amber-300">🌍 ภาคอุตสาหกรรม</span><span id="infoSectorBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">Secondary</span></div>
+          <p id="infoSectorDesc" class="text-xs text-slate-300 mt-1"></p>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
+          <div id="lblBonding" class="text-xs font-bold text-cyan-300">🔗 การจับตัวทางกายภาพ</div>
+          <p id="infoBondingDesc" class="text-xs text-slate-300 mt-1"></p>
+          <div class="text-[11px] text-slate-400 mt-1"><span id="lblBondType">พันธะ:</span> <span id="infoBondType" class="text-slate-200 font-semibold"></span> | <span id="lblCrystal">ผลึก:</span> <span id="infoCrystalType" class="text-slate-200 font-semibold"></span></div>
+        </div>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800/90 flex-1 flex flex-col justify-between gap-2">
+        <div>
+          <div class="flex justify-between items-center mb-1"><span id="showcaseBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300"></span><span id="showcaseFormula" class="text-xs font-mono text-amber-300"></span></div>
+          <h3 id="showcaseTitle" class="text-sm font-bold text-white"></h3>
+          <p id="showcaseDescription" class="text-xs text-slate-300 mt-1.5 leading-relaxed"></p>
+          <ul id="showcaseBullets" class="text-[11px] text-slate-300 space-y-1 list-disc pl-4 mt-2 bg-slate-900/90 p-2.5 rounded-xl border border-slate-800"></ul>
+        </div>
+        <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
+          <button id="btnPrevShowcase" class="px-3 py-1 rounded-lg bg-slate-800 text-xs text-slate-200">← Prev</button>
+          <span id="showcaseCounter" class="text-[11px] text-slate-400">2 / 8</span>
+          <button id="btnNextShowcase" class="px-3 py-1 rounded-lg bg-cyan-500 text-xs font-bold text-slate-950">Next →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const CATEGORY_META = {
+      "alkali": { th: "โลหะแอลคาไล", en: "Alkali Metal", color: "#f43f5e", hex: 0xf43f5e },
+      "alkaline": { th: "โลหะแอลคาไลน์เอิร์ท", en: "Alkaline Earth", color: "#fb923c", hex: 0xfb923c },
+      "transition": { th: "โลหะแทรนซิชัน", en: "Transition Metal", color: "#38bdf8", hex: 0x38bdf8 },
+      "post-transition": { th: "โลหะหลังแทรนซิชัน", en: "Post-Transition", color: "#a78bfa", hex: 0xa78bfa },
+      "metalloid": { th: "กึ่งโลหะ", en: "Metalloid", color: "#2dd4bf", hex: 0x2dd4bf },
+      "nonmetal": { th: "อโลหะ", en: "Reactive Nonmetal", color: "#4ade80", hex: 0x4ade80 },
+      "noble": { th: "ก๊าซเฉื่อย", en: "Noble Gas", color: "#e879f9", hex: 0xe879f9 },
+      "lanthanide": { th: "แลนทาไนด์", en: "Lanthanide", color: "#facc15", hex: 0xfacc15 },
+      "actinide": { th: "แอกทิไนด์", en: "Actinide", color: "#fb7185", hex: 0xfb7185 }
+    };
+    const SECTOR_META = {
+      "primary": { th: "🌾 1. Primary (วัตถุดิบ/เหมือง/เกษตร)", en: "🌾 1. Primary (Raw Materials & Extraction)", desc_th: "เหมืองแร่ เกษตรกรรม สกัดวัตถุดิบ", desc_en: "Mining, agriculture, oil & gas extraction" },
+      "secondary": { th: "🏭 2. Secondary (การผลิต/อวกาศ)", en: "🏭 2. Secondary (Manufacturing & Aerospace)", desc_th: "อุตสาหกรรมผลิต ยานยนต์ อวกาศ วัสดุ", desc_en: "Manufacturing, aerospace, automotive, chemicals" },
+      "tertiary": { th: "🏥 3. Tertiary (บริการ/การแพทย์)", en: "🏥 3. Tertiary (Healthcare & Utilities)", desc_th: "การแพทย์ พลังงาน ขนส่ง สาธารณูปโภค", desc_en: "Healthcare, energy utilities, logistics" },
+      "quaternary": { th: "🛰️ 4. Quaternary (AI/ชิป/ดิจิทัล)", en: "🛰️ 4. Quaternary (IT, AI & Deep Tech)", desc_th: "ชิป AI คลาวด์ ดาวเทียม วิจัยขั้นสูง", desc_en: "AI semiconductors, cloud, telecom, R&D" }
+    };
+    const RAW_ELEMENTS = [
+      [1,"H","Hydrogen","ไฮโดรเจน",1.008,1,1,1,1,"nonmetal","Gas","secondary"],[2,"He","Helium","ฮีเลียม",4.0026,18,1,1,18,"noble","Gas","tertiary"],
+      [3,"Li","Lithium","ลิเทียม",6.94,1,2,2,1,"alkali","Solid","secondary"],[4,"Be","Beryllium","เบริลเลียม",9.0122,2,2,2,2,"alkaline","Solid","secondary"],
+      [5,"B","Boron","บอรอน",10.81,13,2,2,13,"metalloid","Solid","secondary"],[6,"C","Carbon","คาร์บอน",12.011,14,2,2,14,"nonmetal","Solid","secondary"],
+      [7,"N","Nitrogen","ไนโตรเจน",14.007,15,2,2,15,"nonmetal","Gas","primary"],[8,"O","Oxygen","ออกซิเจน",15.999,16,2,2,16,"nonmetal","Gas","secondary"],
+      [9,"F","Fluorine","ฟลูออรีน",18.998,17,2,2,17,"nonmetal","Gas","secondary"],[10,"Ne","Neon","นีออน",20.180,18,2,2,18,"noble","Gas","tertiary"],
+      [11,"Na","Sodium","โซเดียม",22.990,1,3,3,1,"alkali","Solid","primary"],[12,"Mg","Magnesium","แมกนีเซียม",24.305,2,3,3,2,"alkaline","Solid","secondary"],
+      [13,"Al","Aluminum","อะลูมิเนียม",26.982,13,3,3,13,"post-transition","Solid","secondary"],[14,"Si","Silicon","ซิลิคอน",28.085,14,3,3,14,"metalloid","Solid","quaternary"],
+      [15,"P","Phosphorus","ฟอสฟอรัส",30.974,15,3,3,15,"nonmetal","Solid","primary"],[16,"S","Sulfur","กำมะถัน",32.06,16,3,3,16,"nonmetal","Solid","primary"],
+      [17,"Cl","Chlorine","คลอรีน",35.45,17,3,3,17,"nonmetal","Gas","tertiary"],[18,"Ar","Argon","อาร์กอน",39.948,18,3,3,18,"noble","Gas","secondary"],
+      [19,"K","Potassium","โพแทสเซียม",39.098,1,4,4,1,"alkali","Solid","primary"],[20,"Ca","Calcium","แคลเซียม",40.078,2,4,4,2,"alkaline","Solid","primary"],
+      [21,"Sc","Scandium","สแกนเดียม",44.956,3,4,4,3,"transition","Solid","secondary"],[22,"Ti","Titanium","ไทเทเนียม",47.867,4,4,4,4,"transition","Solid","secondary"],
+      [23,"V","Vanadium","วาเนเดียม",50.942,5,4,4,5,"transition","Solid","secondary"],[24,"Cr","Chromium","โครเมียม",51.996,6,4,4,6,"transition","Solid","secondary"],
+      [25,"Mn","Manganese","แมงกานีส",54.938,7,4,4,7,"transition","Solid","secondary"],[26,"Fe","Iron","เหล็ก",55.845,8,4,4,8,"transition","Solid","secondary"],
+      [27,"Co","Cobalt","โคบอลต์",58.933,9,4,4,9,"transition","Solid","secondary"],[28,"Ni","Nickel","นิกเกิล",58.693,10,4,4,10,"transition","Solid","secondary"],
+      [29,"Cu","Copper","ทองแดง",63.546,11,4,4,11,"transition","Solid","secondary"],[30,"Zn","Zinc","สังกะสี",65.38,12,4,4,12,"transition","Solid","secondary"],
+      [31,"Ga","Gallium","แกลเลียม",69.723,13,4,4,13,"post-transition","Solid","quaternary"],[32,"Ge","Germanium","เจอร์เมเนียม",72.630,14,4,4,14,"metalloid","Solid","quaternary"],
+      [33,"As","Arsenic","สารหนู",74.922,15,4,4,15,"metalloid","Solid","quaternary"],[34,"Se","Selenium","ซีลีเนียม",78.971,16,4,4,16,"nonmetal","Solid","secondary"],
+      [35,"Br","Bromine","โบรมีน",79.904,17,4,4,17,"nonmetal","Liquid","secondary"],[36,"Kr","Krypton","คริปทอน",83.798,18,4,4,18,"noble","Gas","tertiary"],
+      [37,"Rb","Rubidium","รูบิเดียม",85.468,1,5,5,1,"alkali","Solid","quaternary"],[38,"Sr","Strontium","สตรอนเทียม",87.62,2,5,5,2,"alkaline","Solid","secondary"],
+      [39,"Y","Yttrium","อิตเทรียม",88.906,3,5,5,3,"transition","Solid","quaternary"],[40,"Zr","Zirconium","เซอร์โคเนียม",91.224,4,5,5,4,"transition","Solid","secondary"],
+      [41,"Nb","Niobium","ไนโอเบียม",92.906,5,5,5,5,"transition","Solid","secondary"],[42,"Mo","Molybdenum","โมลิบดีนัม",95.95,6,5,5,6,"transition","Solid","secondary"],
+      [43,"Tc","Technetium","เทคนีเชียม",98,7,5,5,7,"transition","Solid","tertiary"],[44,"Ru","Ruthenium","รูทีเนียม",101.07,8,5,5,8,"transition","Solid","quaternary"],
+      [45,"Rh","Rhodium","โรเดียม",102.91,9,5,5,9,"transition","Solid","secondary"],[46,"Pd","Palladium","แพลเลเดียม",106.42,10,5,5,10,"transition","Solid","secondary"],
+      [47,"Ag","Silver","เงิน",107.87,11,5,5,11,"transition","Solid","secondary"],[48,"Cd","Cadmium","แคดเมียม",112.41,12,5,5,12,"transition","Solid","secondary"],
+      [49,"In","Indium","อินเดียม",114.82,13,5,5,13,"post-transition","Solid","quaternary"],[50,"Sn","Tin","ดีบุก",118.71,14,5,5,14,"post-transition","Solid","secondary"],
+      [51,"Sb","Antimony","พลวง",121.76,15,5,5,15,"metalloid","Solid","secondary"],[52,"Te","Tellurium","เทลลูเรียม",127.60,16,5,5,16,"metalloid","Solid","secondary"],
+      [53,"I","Iodine","ไอโอดีน",126.90,17,5,5,17,"nonmetal","Solid","tertiary"],[54,"Xe","Xenon","ซีนอน",131.29,18,5,5,18,"noble","Gas","quaternary"],
+      [55,"Cs","Cesium","ซีเซียม",132.91,1,6,6,1,"alkali","Solid","quaternary"],[56,"Ba","Barium","แบเรียม",137.33,2,6,6,2,"alkaline","Solid","tertiary"],
+      [57,"La","Lanthanum","แลนทานัม",138.91,3,6,9,4,"lanthanide","Solid","secondary"],[58,"Ce","Cerium","ซีเรียม",140.12,3,6,9,5,"lanthanide","Solid","secondary"],
+      [59,"Pr","Praseodymium","เพรซีโอดิเมียม",140.91,3,6,9,6,"lanthanide","Solid","secondary"],[60,"Nd","Neodymium","นีโอดิเมียม",144.24,3,6,9,7,"lanthanide","Solid","quaternary"],
+      [61,"Pm","Promethium","โพรมีเทียม",145,3,6,9,8,"lanthanide","Solid","quaternary"],[62,"Sm","Samarium","ซาแมเรียม",150.36,3,6,9,9,"lanthanide","Solid","secondary"],
+      [63,"Eu","Europium","ยูโรเพียม",151.96,3,6,9,10,"lanthanide","Solid","quaternary"],[64,"Gd","Gadolinium","แกโดลิเนียม",157.25,3,6,9,11,"lanthanide","Solid","tertiary"],
+      [65,"Tb","Terbium","เทอร์เบียม",158.93,3,6,9,12,"lanthanide","Solid","quaternary"],[66,"Dy","Dysprosium","ดิสโพรเซียม",162.50,3,6,9,13,"lanthanide","Solid","quaternary"],
+      [67,"Ho","Holmium","โฮลเมียม",164.93,3,6,9,14,"lanthanide","Solid","quaternary"],[68,"Er","Erbium","เออร์เบียม",167.26,3,6,9,15,"lanthanide","Solid","quaternary"],
+      [69,"Tm","Thulium","ทูเลียม",168.93,3,6,9,16,"lanthanide","Solid","tertiary"],[70,"Yb","Ytterbium","อิตเทอร์เบียม",173.05,3,6,9,17,"lanthanide","Solid","quaternary"],
+      [71,"Lu","Lutetium","ลูทีเชียม",174.97,3,6,9,18,"lanthanide","Solid","tertiary"],[72,"Hf","Hafnium","แฮฟเนียม",178.49,4,6,6,4,"transition","Solid","quaternary"],
+      [73,"Ta","Tantalum","แทนทาลัม",180.95,5,6,6,5,"transition","Solid","quaternary"],[74,"W","Tungsten","ทังสเตน",183.84,6,6,6,6,"transition","Solid","secondary"],
+      [75,"Re","Rhenium","รีเนียม",186.21,7,6,6,7,"transition","Solid","secondary"],[76,"Os","Osmium","ออสเมียม",190.23,8,6,6,8,"transition","Solid","secondary"],
+      [77,"Ir","Iridium","อิริเดียม",192.22,9,6,6,9,"transition","Solid","quaternary"],[78,"Pt","Platinum","แพลทินัม",195.08,10,6,6,10,"transition","Solid","secondary"],
+      [79,"Au","Gold","ทองคำ",196.97,11,6,6,11,"transition","Solid","secondary"],[80,"Hg","Mercury","ปรอท",200.59,12,6,6,12,"transition","Liquid","secondary"],
+      [81,"Tl","Thallium","แทลเลียม",204.38,13,6,6,13,"post-transition","Solid","quaternary"],[82,"Pb","Lead","ตะกั่ว",207.2,14,6,6,14,"post-transition","Solid","secondary"],
+      [83,"Bi","Bismuth","บิสมัท",208.98,15,6,6,15,"post-transition","Solid","tertiary"],[84,"Po","Polonium","พอโลเนียม",209,16,6,6,16,"post-transition","Solid","quaternary"],
+      [85,"At","Astatine","แอสทาทีน",210,17,6,6,17,"metalloid","Solid","tertiary"],[86,"Rn","Radon","เรดอน",222,18,6,6,18,"noble","Gas","tertiary"],
+      [87,"Fr","Francium","แฟรนเซียม",223,1,7,7,1,"alkali","Solid","quaternary"],[88,"Ra","Radium","เรเดียม",226,2,7,7,2,"alkaline","Solid","tertiary"],
+      [89,"Ac","Actinium","แอกทิเนียม",227,3,7,10,4,"actinide","Solid","tertiary"],[90,"Th","Thorium","ทอเรียม",232.04,3,7,10,5,"actinide","Solid","tertiary"],
+      [91,"Pa","Protactinium","โพรแทกทิเนียม",231.04,3,7,10,6,"actinide","Solid","quaternary"],[92,"U","Uranium","ยูเรเนียม",238.03,3,7,10,7,"actinide","Solid","tertiary"],
+      [93,"Np","Neptunium","เนปทูเนียม",237,3,7,10,8,"actinide","Solid","quaternary"],[94,"Pu","Plutonium","พลูโทเนียม",244,3,7,10,9,"actinide","Solid","quaternary"],
+      [95,"Am","Americium","อะเมริเซียม",243,3,7,10,10,"actinide","Solid","tertiary"],[96,"Cm","Curium","คูเรียม",247,3,7,10,11,"actinide","Solid","quaternary"],
+      [97,"Bk","Berkelium","เบอร์คีเลียม",247,3,7,10,12,"actinide","Solid","quaternary"],[98,"Cf","Californium","แคลิฟอร์เนียม",251,3,7,10,13,"actinide","Solid","quaternary"],
+      [99,"Es","Einsteinium","ไอน์สไตเนียม",252,3,7,10,14,"actinide","Solid","quaternary"],[100,"Fm","Fermium","เฟอร์เมียม",257,3,7,10,15,"actinide","Solid","quaternary"],
+      [101,"Md","Mendelevium","เมนเดลีเวียม",258,3,7,10,16,"actinide","Solid","quaternary"],[102,"No","Nobelium","โนเบเลียม",259,3,7,10,17,"actinide","Solid","quaternary"],
+      [103,"Lr","Lawrencium","ลอว์เรนเซียม",266,3,7,10,18,"actinide","Solid","quaternary"],[104,"Rf","Rutherfordium","รัทเทอร์ฟอร์เดียม",267,4,7,7,4,"transition","Solid","quaternary"],
+      [105,"Db","Dubnium","ดุบเนียม",268,5,7,7,5,"transition","Solid","quaternary"],[106,"Sg","Seaborgium","ซีบอร์เกียม",269,6,7,7,6,"transition","Solid","quaternary"],
+      [107,"Bh","Bohrium","โบห์เรียม",270,7,7,7,7,"transition","Solid","quaternary"],[108,"Hs","Hassium","แฮสเซียม",277,8,7,7,8,"transition","Solid","quaternary"],
+      [109,"Mt","Meitnerium","ไมต์เนเรียม",278,9,7,7,9,"transition","Solid","quaternary"],[110,"Ds","Darmstadtium","ดาร์มสตัดเทียม",281,10,7,7,10,"transition","Solid","quaternary"],
+      [111,"Rg","Roentgenium","เรินต์เกเนียม",282,11,7,7,11,"transition","Solid","quaternary"],[112,"Cn","Copernicium","โคเพอร์นิเซียม",285,12,7,7,12,"transition","Solid","quaternary"],
+      [113,"Nh","Nihonium","นิโฮเนียม",286,13,7,7,13,"post-transition","Solid","quaternary"],[114,"Fl","Flerovium","ฟเลโรเวียม",289,14,7,7,14,"post-transition","Solid","quaternary"],
+      [115,"Mc","Moscovium","มอสโกเวียม",290,15,7,7,15,"post-transition","Solid","quaternary"],[116,"Lv","Livermorium","ลิเวอร์มอเรียม",293,16,7,7,16,"post-transition","Solid","quaternary"],
+      [117,"Ts","Tennessine","เทนเนสซีน",294,17,7,7,17,"metalloid","Solid","quaternary"],[118,"Og","Oganesson","โอกาเนสซอน",294,18,7,7,18,"noble","Solid","quaternary"]
+    ];
+    function computeShells(z){const s=[[1,2],[2,2],[2,6],[3,2],[3,6],[4,2],[3,10],[4,6],[5,2],[4,10],[5,6],[6,2],[4,14],[5,10],[6,6],[7,2],[5,14],[6,10],[7,6]],sh=[0,0,0,0,0,0,0];let r=z;for(const[n,c]of s){if(r<=0)break;const t=Math.min(r,c);sh[n-1]+=t;r-=t;}return sh.filter(c=>c>0);}
+    const ELEMENTS = RAW_ELEMENTS.map(r=>{
+      const [z,sym,nameEn,nameTh,mass,group,period,gridRow,gridCol,catKey,phase,sectorKey]=r;
+      const shells=computeShells(z);
+      return {z,sym,nameEn,nameTh,mass,group,period,gridRow,gridCol,catKey,phase,sectorKey,shells,protons:z,electrons:z,neutrons:Math.max(0,Math.round(mass)-z)};
+    });
+    const SHOWCASES = [
+      {id:0,badge_th:"ชิ้นที่ 1 • O₂/O₃",badge_en:"#1 • O₂ / O₃",short_th:"ก๊าซออกซิเจน",short_en:"Oxygen Gas",formula:"O₂ (O=O) & O₃",title_th:"กิ่งของก๊าซออกซิเจน & โอโซน",title_en:"Oxygen Double Bond & Ozone Branching",desc_th:"พันธะคู่ O=O และกิ่งมุมงอ 116.8° ของโอโซน พร้อมพฤติกรรมพาราแมกเนติก",desc_en:"Covalent double bond O=O, bent 116.8° ozone (O₃) branching, and paramagnetic clustering.",param_th:"สนามแม่เหล็ก:",param_en:"Magnetic Field:",b_th:["ออกซิเจน 2 อะตอมสร้างพันธะคู่","โอโซน O₃ แตกกิ่งมุมงอ 116.8°"],b_en:["O=O double covalent bond","116.8° bent ozone O₃ branching"],primaryZ:8},
+      {id:1,badge_th:"ชิ้นที่ 2 • เมมโมรี่โฟม",badge_en:"#2 • Memory Foam",short_th:"เมมโมรี่โฟม",short_en:"Memory Foam",formula:"Polyurethane C-H-O-N",title_th:"เมมโมรี่โฟม (เบาะ ที่นอน ยานอวกาศ)",title_en:"Memory Foam (Cushions, Mattresses & Spacecraft)",desc_th:"โครงข่ายพอลิยูรีเทนแบบเซลล์เปิด (Viscoelastic) ยุบตัวรับแรง G-Force และคืนตัวช้าๆ",desc_en:"NASA-developed open-cell viscoelastic polyurethane network absorbing G-Force and rebounding slowly.",param_th:"แรงกดทับ (Stress):",param_en:"Compression Stress:",b_th:["สายโซ่ C-O ยืดหยุ่นแบบสปริง","พันธะไฮโดรเจน N-H คลายตัวเมื่อรับน้ำหนัก"],b_en:["Flexible C-O polyol spring chains","H-bonds between urethane hard segments"],primaryZ:6},
+      {id:2,badge_th:"ชิ้นที่ 3 • เพชร & แกรฟีน",badge_en:"#3 • Diamond & Graphene",short_th:"เพชร & แกรฟีน",short_en:"Diamond/Graphene",formula:"Cₙ (sp³ / sp²)",title_th:"โครงผลึกเพชร & แผ่นแกรฟีน",title_en:"Diamond Tetrahedral & Graphene Honeycomb",desc_th:"คาร์บอนทรงสี่หน้า 109.5° แข็งที่สุด และแผ่นรังผึ้งนำไฟฟ้า",desc_en:"Ultra-hard 109.5° sp³ diamond lattice vs conductive 2D sp² hexagonal graphene sheet.",param_th:"คลื่นโฟนอน:",param_en:"Phonon Vibration:",b_th:["sp³ รับแรงอัดมหาศาล","sp² นำความร้อนและไฟฟ้าสูง"],b_en:["sp³ tetrahedral compression resistance","sp² rapid electron & heat conduction"],primaryZ:6},
+      {id:3,badge_th:"ชิ้นที่ 4 • ผลึกน้ำแข็ง",badge_en:"#4 • Ice Crystal",short_th:"ผลึกน้ำแข็ง",short_en:"Ice Crystal",formula:"(H₂O)ₙ Ice-Ih",title_th:"กิ่งผลึกน้ำแข็งหกเหลี่ยม",title_en:"Hexagonal Ice Crystal & H-Bond Network",desc_th:"พันธะไฮโดรเจนตรึงโมเลกุลน้ำเป็นหกเหลี่ยมที่มีช่องว่างตรงกลาง",desc_en:"104.5° polar water molecules locked into open hexagonal rings by hydrogen bonding.",param_th:"พลังงานความร้อน:",param_en:"Thermal Energy:",b_th:["มุมพันธะ 104.5°","ความหนาแน่นลดลงเมื่อแข็งตัว"],b_en:["104.5° H-O-H bond angle","Lower density than liquid water"],primaryZ:1},
+      {id:4,badge_th:"ชิ้นที่ 5 • โลหะจำรูป",badge_en:"#5 • Nitinol Alloy",short_th:"โลหะจำรูป Nitinol",short_en:"Nitinol Alloy",formula:"NiTi B2 Alloy",title_th:"Nitinol อุปกรณ์ยานอวกาศ",title_en:"Nitinol Shape-Memory Aerospace Alloy",desc_th:"สลับเฟส Austenite ↔ Martensite คืนรูปอัตโนมัติเมื่อโดนความร้อน",desc_en:"Diffusionless Austenite ↔ Martensite shear transformation snapping back to original shape when heated.",param_th:"การเฉือนเฟส:",param_en:"Phase Shear:",b_th:["ไทเทเนียม + นิกเกิล 1:1","ใช้กางเสาอากาศและขดลวดหัวใจ"],b_en:["1:1 Ti-Ni B2 superlattice","Used in spacecraft antennas & medical stents"],primaryZ:22},
+      {id:5,badge_th:"ชิ้นที่ 6 • วัสดุนาโน",badge_en:"#6 • Silica Aerogel",short_th:"แอโรเจลซิลิกา",short_en:"Silica Aerogel",formula:"SiO₂ Aerogel",title_th:"แอโรเจลซิลิกา (NASA Stardust)",title_en:"Silica Aerogel (NASA Stardust Collector)",desc_th:"โพรงอากาศ 99.8% กันความร้อนสูงและดักฝุ่นดาวหาง",desc_en:"99.8% nanoporous silica web insulating Mars rovers and capturing hypervelocity comet dust.",param_th:"ความเร็วฝุ่นดาวหาง:",param_en:"Dust Velocity:",b_th:["โครงข่าย Si-O-Si รูพรุนนาโน","ฉนวนกันความร้อนยานมาร์สโรเวอร์"],b_en:["Nanoporous Si-O-Si thermal barrier","Captures 6 km/s cosmic particles"],primaryZ:14},
+      {id:6,badge_th:"ชิ้นที่ 7 • ตัวนำยิ่งยวด",badge_en:"#7 • Superconductor",short_th:"ตัวนำยิ่งยวด",short_en:"YBCO Levitation",formula:"YBa₂Cu₃O₇",title_th:"YBCO & Meissner Effect",title_en:"YBCO High-Tc Superconductor & Meissner Effect",desc_th:"ระนาบ CuO₂ นำไฟฟ้าไร้ความต้านทาน ทำให้แม่เหล็กลอยตัวควอนตัม",desc_en:"CuO₂ planes carry zero-resistance Cooper pairs above 93 K, pinning magnetic flux for levitation.",param_th:"ความสูงลอยตัว:",param_en:"Levitation Height:",b_th:["ทำงานเหนือ 93 K","ใช้ในรถไฟ Maglev และ MRI"],b_en:["Operates above liquid nitrogen (93 K)","Powers Maglev trains & MRI scanners"],primaryZ:39},
+      {id:7,badge_th:"ชิ้นที่ 8 • ชิป AI 2nm",badge_en:"#8 • 2nm AI Chip",short_th:"ชิป AI GAAFET",short_en:"2nm AI Chip",formula:"Si + HfO₂ GAAFET",title_th:"ทรานซิสเตอร์ชิป AI ยุคใหม่",title_en:"2nm Monocrystalline Si GAAFET Transistor",desc_th:"นาโนชีตซิลิคอนล้อมรอบเกตไดอิเล็กทริก เร่งความเร็วประมวลผล AI",desc_en:"9N pure silicon nanosheets wrapped by HfO₂ dielectric gates accelerating AI tensor compute.",param_th:"แรงดันเกต:",param_en:"Gate Voltage:",b_th:["ผลึกเดี่ยว 9N ความบริสุทธิ์สูง","ลดการรั่วไหลของกระแสไฟฟ้า"],b_en:["99.9999999% pure Si lattice","Minimizes quantum current leakage"],primaryZ:14}
+    ];
+    const REACTIONS = [
+      {id:0,title_th:"2H₂ + O₂ → 2H₂O",title_en:"2H₂ + O₂ → 2H₂O",sub_th:"เชื้อเพลิงจรวด",sub_en:"Rocket Propellant"},
+      {id:1,title_th:"สังเคราะห์เมมโมรี่โฟม",title_en:"Polyurethane Synthesis",sub_th:"Polyurethane",sub_en:"Memory Foam"},
+      {id:2,title_th:"N₂ + 3H₂ ⇌ 2NH₃",title_en:"N₂ + 3H₂ ⇌ 2NH₃",sub_th:"ฮาเบอร์-บอช ปุ๋ย",sub_en:"Haber-Bosch"},
+      {id:3,title_th:"CH₄ + 2O₂ → CO₂+2H₂O",title_en:"CH₄ + 2O₂ → CO₂+2H₂O",sub_th:"จรวด Methalox",sub_en:"Methalox Engine"},
+      {id:4,title_th:"SiO₂ + 2C → Si + 2CO",title_en:"SiO₂ + 2C → Si + 2CO",sub_th:"ถลุงซิลิคอนชิป AI",sub_en:"Silicon Reduction"}
+    ];
+
+    let lang="th";
+    try{const s=localStorage.getItem("applied_sim_lang");if(s==="en"||s==="th")lang=s;}catch(e){}
+    const state={mode:"table",tableLayout:"table",selectedZ:8,activeShowcase:1,activeReaction:0,atomModel:"bohr",quantumOrbitalType:"all",atomSpeed:1,nucleusExploded:false,materialParam:35,materialPulseTime:0,isReacting:false,reactionStartTime:0,soundEnabled:false,searchQuery:"",categoryFilter:"all",sectorFilter:"all"};
+
+    let audioCtx=null;
+    function playTone(f=440,d=0.12){if(!state.soundEnabled)return;try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.setValueAtTime(f,audioCtx.currentTime);g.gain.setValueAtTime(0.06,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}catch(e){}}
+
+    const container=document.getElementById("threeContainer"),scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(50,1,0.1,1000),renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setClearColor(0x040711,1);container.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xdbeafe,0.8));const dl=new THREE.DirectionalLight(0x38bdf8,1.2);dl.position.set(30,40,35);scene.add(dl);
+    const tableGroup=new THREE.Group(),atomGroup=new THREE.Group(),reactionGroup=new THREE.Group(),materialGroup=new THREE.Group();
+    scene.add(tableGroup,atomGroup,reactionGroup,materialGroup);
+
+    const cam={r:42,tr:42,th:0.15,ph:1.38,tth:0.15,tph:1.38};
+    function resetCam(){if(state.mode==="table"){cam.tr=42;cam.tth=0;cam.tph=1.48;}else{cam.tr=25;cam.tth=0.35;cam.tph=1.25;}}
+    let drag=false,prev={x:0,y:0},down={x:0,y:0},ray=new THREE.Raycaster(),mndc=new THREE.Vector2();
+    renderer.domElement.addEventListener("pointerdown",e=>{drag=true;prev={x:e.clientX,y:e.clientY};down={x:e.clientX,y:e.clientY};});
+    window.addEventListener("pointermove",e=>{if(!drag)return;cam.tth-=(e.clientX-prev.x)*0.0075;cam.tph=Math.max(0.2,Math.min(Math.PI-0.2,cam.tph-(e.clientY-prev.y)*0.0075));prev={x:e.clientX,y:e.clientY};});
+    window.addEventListener("pointerup",e=>{if(!drag)return;drag=false;if(Math.hypot(e.clientX-down.x,e.clientY-down.y)<6&&state.mode==="table"){const rc=renderer.domElement.getBoundingClientRect();mndc.x=((e.clientX-rc.left)/rc.width)*2-1;mndc.y=-((e.clientY-rc.top)/rc.height)*2+1;ray.setFromCamera(mndc,camera);const h=ray.intersectObjects(tableTileMeshes);if(h.length>0)selectElement(h[0].object.userData.z,true);}});
+    renderer.domElement.addEventListener("wheel",e=>{e.preventDefault();cam.tr=Math.max(8,Math.min(85,cam.tr+e.deltaY*0.03));},{passive:false});
+    function resize(){const w=container.clientWidth||800,h=container.clientHeight||480;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
+    window.addEventListener("resize",resize);
+
+    const tableTileMeshes=[];
+    function tileTex(el,sel){const c=document.createElement("canvas");c.width=128;c.height=128;const x=c.getContext("2d"),col=CATEGORY_META[el.catKey].color;x.fillStyle=sel?"#0ea5e9":"#0f172a";x.fillRect(0,0,128,128);x.strokeStyle=sel?"#fff":col;x.lineWidth=6;x.strokeRect(4,4,120,120);x.fillStyle="#fff";x.font="bold 20px Inter";x.fillText(el.z,12,34);x.fillStyle=sel?"#fff":col;x.font="bold 44px Inter";x.textAlign="center";x.fillText(el.sym,64,82);x.fillStyle="#cbd5e1";x.font="14px Inter";x.fillText((lang==="en"?el.nameEn:el.nameTh).slice(0,10),64,110);return new THREE.CanvasTexture(c);}
+    function tPos(el,l){if(l==="sphere"){const i=el.z-1,p=Math.acos(-1+(2*i+1)/118),t=Math.sqrt(118*Math.PI)*p;return new THREE.Vector3(16*Math.cos(t)*Math.sin(p),16*Math.cos(p),16*Math.sin(t)*Math.sin(p));}if(l==="helix"){const i=el.z-1,a=i*0.34;return new THREE.Vector3(14*Math.cos(a),(i-59)*0.25,14*Math.sin(a));}return new THREE.Vector3((el.gridCol-9.5)*2.15,(5.5-el.gridRow)*2.15,el.z===state.selectedZ?2:0);}
+    function buildTable(){while(tableGroup.children.length)tableGroup.remove(tableGroup.children[0]);tableTileMeshes.length=0;const g=new THREE.BoxGeometry(1.85,1.85,0.35);ELEMENTS.forEach(el=>{const sel=el.z===state.selectedZ,m=new THREE.Mesh(g,[new THREE.MeshStandardMaterial({color:CATEGORY_META[el.catKey].hex}),new THREE.MeshStandardMaterial({color:CATEGORY_META[el.catKey].hex}),new THREE.MeshStandardMaterial({color:CATEGORY_META[el.catKey].hex}),new THREE.MeshStandardMaterial({color:CATEGORY_META[el.catKey].hex}),new THREE.MeshStandardMaterial({map:tileTex(el,sel)}),new THREE.MeshStandardMaterial({color:CATEGORY_META[el.catKey].hex})]);m.position.copy(tPos(el,state.tableLayout));m.userData={z:el.z,tp:m.position.clone()};tableGroup.add(m);tableTileMeshes.push(m);});}
+    function updateTableTargets(){tableTileMeshes.forEach(m=>{const el=ELEMENTS[m.userData.z-1],ok=matchesFilter(el),p=tPos(el,state.tableLayout);if(!ok)p.z-=6;m.userData.tp.copy(p);m.scale.setScalar(el.z===state.selectedZ?1.2:ok?1:0.45);});}
+
+    let nucParts=[],orbList=[],qCloud=null;
+    function buildAtom(el){while(atomGroup.children.length)atomGroup.remove(atomGroup.children[0]);nucParts=[];orbList=[];qCloud=null;
+      if(state.atomModel==="bohr"){
+        const vp=Math.min(el.protons,40),vn=Math.min(el.neutrons,48),tot=vp+vn,cr=Math.min(2.4,0.45*Math.cbrt(tot));
+        const pg=new THREE.SphereGeometry(0.38,14,14),pm=new THREE.MeshStandardMaterial({color:0xf43f5e}),nm=new THREE.MeshStandardMaterial({color:0xf59e0b});
+        for(let i=0;i<tot;i++){const m=new THREE.Mesh(pg,i<vp?pm:nm),p=Math.acos(1-2*(i+0.5)/Math.max(1,tot)),t=Math.PI*(1+Math.sqrt(5))*i,r=tot===1?0:cr*(0.5+0.5*((i%4)/3)),bp=new THREE.Vector3(r*Math.sin(p)*Math.cos(t),r*Math.sin(p)*Math.sin(t),r*Math.cos(p));m.position.copy(bp);m.userData={bp,ep:bp.clone().multiplyScalar(2.5),ph:Math.random()*6};atomGroup.add(m);nucParts.push(m);}
+        const eg=new THREE.SphereGeometry(0.26,12,12),em=new THREE.MeshStandardMaterial({color:0x38bdf8,emissive:0x0284c7});
+        el.shells.forEach((cnt,si)=>{const sr=3.5+si*1.6,h=new THREE.Group();h.rotation.x=0.35+si*0.4;h.rotation.y=si*0.5;h.add(new THREE.Mesh(new THREE.TorusGeometry(sr,0.03,10,80),new THREE.MeshBasicMaterial({color:0x475569,transparent:true,opacity:0.45})));for(let e=0;e<cnt;e++){const a=(e/cnt)*Math.PI*2,emesh=new THREE.Mesh(eg,em);emesh.position.set(sr*Math.cos(a),sr*Math.sin(a),0);h.add(emesh);}atomGroup.add(h);orbList.push({h,sp:(1.5/(si+1))*(si%2===0?1:-1)});});
+      }else{
+        atomGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.8,18,18),new THREE.MeshStandardMaterial({color:0xf59e0b})));
+        const og=new THREE.Group(),qt=state.quantumOrbitalType,pts=new Float32Array(2500*3),cols=new Float32Array(2500*3);
+        for(let i=0;i<2500;i++){const a=Math.random()*Math.PI*2,p=Math.acos(2*Math.random()-1),r=qt==="s"?2+Math.random()*4:(qt==="d"?2+Math.abs(Math.sin(2*a))*5:2+Math.random()*5);pts[i*3]=r*Math.sin(p)*Math.cos(a);pts[i*3+1]=r*Math.sin(p)*Math.sin(a);pts[i*3+2]=r*Math.cos(p);cols[i*3]=qt==="p"?1:0.2;cols[i*3+1]=0.7;cols[i*3+2]=1;}
+        const bg=new THREE.BufferGeometry();bg.setAttribute("position",new THREE.BufferAttribute(pts,3));bg.setAttribute("color",new THREE.BufferAttribute(cols,3));
+        og.add(new THREE.Points(bg,new THREE.PointsMaterial({vertexColors:true,size:0.22,transparent:true,opacity:0.75})));
+        qCloud=og;atomGroup.add(og);
+      }
+    }
+
+    let rxObjs=[];
+    function buildReaction(){while(reactionGroup.children.length)reactionGroup.remove(reactionGroup.children[0]);rxObjs=[];
+      const r1=new THREE.Mesh(new THREE.SphereGeometry(0.9,18,18),new THREE.MeshStandardMaterial({color:0x38bdf8})),r2=new THREE.Mesh(new THREE.SphereGeometry(1.1,18,18),new THREE.MeshStandardMaterial({color:0xf43f5e})),p1=new THREE.Mesh(new THREE.SphereGeometry(1.3,20,20),new THREE.MeshStandardMaterial({color:0x10b981}));
+      r1.position.set(-5,0,0);r2.position.set(5,0,0);p1.scale.set(0.001,0.001,0.001);reactionGroup.add(r1,r2,p1);rxObjs.push({r1,r2,p1});
+    }
+
+    let matObjs=[];
+    function buildShowcase(id){while(materialGroup.children.length)materialGroup.remove(materialGroup.children[0]);matObjs=[];
+      if(id===1){for(let y=0;y<3;y++){for(let x=0;x<5;x++){const n=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,16),new THREE.MeshStandardMaterial({color:(x+y)%2===0?0x64748b:0xef4444}));const bp=new THREE.Vector3((x-2)*2.8,(y-1)*3,0);n.position.copy(bp);materialGroup.add(n);matObjs.push({type:"foam",m:n,bp,cx:x});}}}
+      else{for(let x=-1;x<=1;x++){for(let y=-1;y<=1;y++){for(let z=-1;z<=1;z++){const m=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,16),new THREE.MeshStandardMaterial({color:id===4?0x38bdf8:(id===6?0x10b981:0xa855f7)}));const bp=new THREE.Vector3(x*3.2,y*3.2,z*3.2);m.position.copy(bp);materialGroup.add(m);matObjs.push({type:"lat",m,bp,y});}}}}
+    }
+
+    function matchesFilter(el){if(state.categoryFilter!=="all"&&el.catKey!==state.categoryFilter)return false;if(state.sectorFilter!=="all"&&el.sectorKey!==state.sectorFilter)return false;if(state.searchQuery.trim()!==""){const q=state.searchQuery.toLowerCase();return el.sym.toLowerCase().includes(q)||el.nameEn.toLowerCase().includes(q)||el.nameTh.toLowerCase().includes(q)||String(el.z)===q;}return true;}
+    function renderGrid(){const g=document.getElementById("periodicGrid");g.innerHTML="";const map=new Map();ELEMENTS.forEach(e=>map.set(`${e.gridRow}-${e.gridCol}`,e));
+      for(let r=1;r<=10;r++){if(r===8){const sp=document.createElement("div");sp.style.gridColumn="1/span 18";sp.style.height="5px";g.appendChild(sp);continue;}
+        for(let c=1;c<=18;c++){const el=map.get(`${r}-${c}`),d=document.createElement("div");if(!el){g.appendChild(d);continue;}
+          const col=CATEGORY_META[el.catKey].color,ok=matchesFilter(el),sel=el.z===state.selectedZ;
+          d.className=`elem-tile rounded p-1 flex flex-col items-center border ${sel?"active-elem":""}`;d.style.borderColor=sel?"#38bdf8":(ok?col+"88":"#1e293b");d.style.opacity=ok?"1":"0.2";
+          d.innerHTML=`<span class="text-[8px] text-slate-400 self-start">${el.z}</span><span class="text-xs font-bold" style="color:${col}">${el.sym}</span><span class="text-[7px] text-slate-300 truncate w-full text-center">${lang==="en"?el.nameEn:el.nameTh}</span>`;
+          d.addEventListener("click",()=>selectElement(el.z,true));g.appendChild(d);
+        }
+      }
+    }
+
+    function renderShowcaseAndReactionButtons(){
+      const sg=document.getElementById("scGridBtns");sg.innerHTML="";
+      SHOWCASES.forEach((sc,i)=>{const b=document.createElement("button");b.className=`text-left p-2 rounded-xl border transition ${i===state.activeShowcase?"border-cyan-400 bg-cyan-950/30":"border-slate-700/80 bg-slate-900/70 hover:bg-slate-800"}`;
+        b.innerHTML=`<span class="text-[9px] text-cyan-300 font-bold">${lang==="en"?sc.badge_en:sc.badge_th}</span><div class="text-[11px] font-bold text-white truncate">${lang==="en"?sc.short_en:sc.short_th}</div>`;
+        b.addEventListener("click",()=>{state.activeShowcase=i;updateUI();setMode("materials");});sg.appendChild(b);
+      });
+      const rg=document.getElementById("rxGridBtns");rg.innerHTML="";
+      REACTIONS.forEach((rx,i)=>{const b=document.createElement("button");b.className=`text-left p-2 rounded-xl border transition ${i===state.activeReaction?"border-amber-500 bg-amber-950/30":"border-slate-700 bg-slate-900/70 hover:bg-slate-800"}`;
+        b.innerHTML=`<div class="text-xs font-bold text-white">${lang==="en"?rx.title_en:rx.title_th}</div><div class="text-[10px] text-slate-400">${lang==="en"?rx.sub_en:rx.sub_th}</div>`;
+        b.addEventListener("click",()=>{state.activeReaction=i;state.isReacting=false;setMode("reaction");});rg.appendChild(b);
+      });
+    }
+
+    function applyStaticTranslations(){
+      const en=lang==="en";
+      document.documentElement.lang=lang;
+      document.getElementById("btnLangToggle").textContent=en?"🌐 EN → TH":"🌐 TH → EN";
+      document.getElementById("hdrSub").textContent=en?"118 Elements • 3D Quantum Orbitals • Reaction Sandbox • 8 Materials & 4 Industry Sectors":"ครบ 118 ธาตุ • ควอนตัมออร์บิทัล 3D • ปฏิกิริยาเคมี • 8 วัสดุล้ำยุค & 4 ภาคอุตสาหกรรม";
+      document.getElementById("btnToggleSound").textContent=state.soundEnabled?(en?"🔊 Sound: ON":"🔊 เสียง: เปิด"):(en?"🔊 Sound: OFF":"🔊 เสียง: ปิด");
+      document.getElementById("btnResetCamera").textContent=en?"🎯 Reset Camera":"🎯 รีเซ็ตกล้อง";
+      document.getElementById("layTable").textContent=en?"3D Table":"ตาราง 3D";
+      document.getElementById("laySphere").textContent=en?"Sphere":"ทรงกลม";
+      document.getElementById("layHelix").textContent=en?"Helix":"เกลียวคู่";
+      document.getElementById("btnModelBohr").textContent=en?"🪐 Bohr":"🪐 บอร์";
+      document.getElementById("btnModelQuantum").textContent=en?"☁️ Quantum (s,p,d,f)":"☁️ ควอนตัม (s,p,d,f)";
+      document.getElementById("btnToggleNucleusExplode").textContent=en?"Explode Nucleus":"แยกนิวเคลียส";
+      document.getElementById("btnTriggerReaction").textContent=en?"⚡ React / Ignite":"⚡ สั่งทำปฏิกิริยา";
+      document.getElementById("btnResetReaction").textContent=en?"🔄 Reset":"🔄 รีเซ็ต";
+      document.getElementById("btnMaterialPulse").textContent=en?"⚡ Test Force":"⚡ ทดสอบแรง";
+      document.getElementById("hudTips").textContent=en?"🖱️ Drag to Orbit 360° • 🔍 Scroll to Zoom":"🖱️ ลากหมุน 360° • 🔍 ลูกกลิ้งซูม";
+      document.getElementById("scBarTitle").textContent=en?"🧪 8 Physical & Advanced Material Showcases (Click for 3D)":"🧪 8 ตัวอย่างการจับตัวทางกายภาพ & วัสดุล้ำยุค (คลิกเพื่อจำลอง 3D)";
+      document.getElementById("rxBarTitle").textContent=en?"💥 5 3D Chemical Reactions":"💥 5 ปฏิกิริยาเคมี 3 มิติ";
+      document.getElementById("gridHeading").textContent=en?"118-Element Matrix & 4 Economic Industry Sectors":"ตารางธาตุ 118 ธาตุ & ตัวกรอง 4 ภาคอุตสาหกรรม";
+      document.getElementById("searchInput").placeholder=en?"Search element...":"ค้นหาธาตุ...";
+      document.getElementById("lblShells").textContent=en?"Electron Shells":"ชั้นอิเล็กตรอน";
+      document.getElementById("lblSector").textContent=en?"🌍 Industry Sector":"🌍 ภาคอุตสาหกรรม";
+      document.getElementById("lblBonding").textContent=en?"🔗 Physical Bonding":"🔗 การจับตัวทางกายภาพ";
+      document.getElementById("lblBondType").textContent=en?"Bond:":"พันธะ:";
+      document.getElementById("lblCrystal").textContent=en?"Structure:":"ผลึก:";
+      document.getElementById("btnPrevShowcase").textContent=en?"← Prev":"← ก่อนหน้า";
+      document.getElementById("btnNextShowcase").textContent=en?"Next →":"ถัดไป →";
+      setMode(state.mode);
+      renderGrid();
+      buildTable();
+      updateUI();
+    }
+
+    function updateUI(){const en=lang==="en",el=ELEMENTS[state.selectedZ-1],cm=CATEGORY_META[el.catKey],sm=SECTOR_META[el.sectorKey];
+      document.getElementById("hudAtomicNum").textContent=el.z;document.getElementById("hudSymbol").textContent=el.sym;
+      document.getElementById("hudTitle").textContent=en?el.nameEn:`${el.nameEn} (${el.nameTh})`;
+      document.getElementById("hudCategoryBadge").textContent=en?cm.en:cm.th;
+      document.getElementById("hudSubtitle").textContent=en?`Mass: ${el.mass} u | Shells: ${el.shells.join(", ")}`:`มวล: ${el.mass} u | ชั้น: ${el.shells.join(", ")}`;
+      document.getElementById("infoNumber").textContent=el.z;document.getElementById("infoSymbol").textContent=el.sym;document.getElementById("infoMassShort").textContent=el.mass;
+      document.getElementById("infoNameMain").textContent=en?el.nameEn:`${el.nameTh} (${el.nameEn})`;
+      document.getElementById("infoCategory").textContent=en?cm.en:cm.th;document.getElementById("infoPhase").textContent=el.phase;
+      document.getElementById("infoGroupPeriod").textContent=en?`Group ${el.group}, Period ${el.period}`:`หมู่ ${el.group}, คาบ ${el.period}`;
+      document.getElementById("infoProtons").textContent=el.protons;document.getElementById("infoNeutrons").textContent=el.neutrons;document.getElementById("infoElectrons").textContent=el.electrons;document.getElementById("infoConfigText").textContent=el.shells.join(" - ");
+      document.getElementById("infoSectorBadge").textContent=en?sm.en:sm.th;
+      document.getElementById("infoSectorDesc").textContent=en?`Key applications in ${sm.desc_en}`:`ใช้งานหลักใน ${sm.desc_th}`;
+      document.getElementById("infoBondingDesc").textContent=en?`${el.nameEn} (${el.sym}) bonds according to ${cm.en} properties.`:`อะตอม${el.nameTh} (${el.sym}) ยึดเหนี่ยวตามสมบัติของ${cm.th}`;
+      document.getElementById("infoBondType").textContent=el.catKey==="nonmetal"?(en?"Covalent":"โคเวเลนต์"):(el.catKey==="noble"?(en?"Van der Waals":"แวนเดอร์วาลส์"):(en?"Metallic / Lattice":"พันธะโลหะ/โครงผลึก"));
+      document.getElementById("infoCrystalType").textContent=el.catKey==="noble"?"Monatomic":"Cubic / Hexagonal";
+      const sc=SHOWCASES[state.activeShowcase];
+      document.getElementById("showcaseBadge").textContent=en?sc.badge_en:sc.badge_th;document.getElementById("showcaseFormula").textContent=sc.formula;
+      document.getElementById("showcaseTitle").textContent=en?sc.title_en:sc.title_th;document.getElementById("showcaseDescription").textContent=en?sc.desc_en:sc.desc_th;
+      document.getElementById("materialActionLabel").textContent=en?sc.param_en:sc.param_th;
+      document.getElementById("showcaseBullets").innerHTML=(en?sc.b_en:sc.b_th).map(b=>`<li>${b}</li>`).join("");
+      document.getElementById("showcaseCounter").textContent=`${sc.id+1} / 8`;
+      renderShowcaseAndReactionButtons();
+    }
+
+    function setMode(m){state.mode=m;tableGroup.visible=m==="table";atomGroup.visible=m==="atom";reactionGroup.visible=m==="reaction";materialGroup.visible=m==="materials";
+      const en=lang==="en";
+      const tabLabels={table:en?"🌐 3D & 2D Table":"🌐 ตารางธาตุ 3D & 2D",atom:en?"⚛ Atom & Quantum":"⚛ โครงสร้างอะตอม & ควอนตัม",reaction:en?"💥 3D Reactions":"💥 ปฏิกิริยาเคมี 3D",materials:en?"🧪 8 Materials & Physics":"🧪 8 วัสดุ & แรงฟิสิกส์"};
+      ["table","atom","reaction","materials"].forEach(k=>{const b=document.getElementById("tabBtn"+k.charAt(0).toUpperCase()+k.slice(1));if(b){b.textContent=tabLabels[k];b.className=k===m?"px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950":"px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800";}});
+      document.getElementById("table3DSubBtns").classList.toggle("hidden",m!=="table");document.getElementById("atom3DSubBtns").classList.toggle("hidden",m!=="atom");document.getElementById("reaction3DSubBtns").classList.toggle("hidden",m!=="reaction");document.getElementById("material3DSubBtns").classList.toggle("hidden",m!=="materials");
+      document.getElementById("showcasesContainer").classList.toggle("hidden",m==="reaction");document.getElementById("reactionsContainer").classList.toggle("hidden",m!=="reaction");
+      document.getElementById("hudDynamicNote").textContent=en?`Active Mode: ${m.toUpperCase()}`:`กำลังแสดง: ${m}`;
+      if(m==="atom")buildAtom(ELEMENTS[state.selectedZ-1]);if(m==="reaction")buildReaction(state.activeReaction);if(m==="materials")buildShowcase(state.activeShowcase);resetCam();
+    }
+    function selectElement(z,sw){const p=state.selectedZ;state.selectedZ=z;playTone(220+z*3);updateUI();renderGrid();buildTable();updateTableTargets();if(state.mode==="atom")buildAtom(ELEMENTS[z-1]);else if(sw&&p===z&&state.mode==="table")setMode("atom");}
+
+    document.getElementById("btnBackHub").addEventListener("click",()=>{window.location.href="index.html";});
+    document.getElementById("btnLangToggle").addEventListener("click",()=>{lang=lang==="th"?"en":"th";try{localStorage.setItem("applied_sim_lang",lang);}catch(e){}applyStaticTranslations();});
+    document.getElementById("tabBtnTable").addEventListener("click",()=>setMode("table"));
+    document.getElementById("tabBtnAtom").addEventListener("click",()=>setMode("atom"));
+    document.getElementById("tabBtnReaction").addEventListener("click",()=>setMode("reaction"));
+    document.getElementById("tabBtnMaterials").addEventListener("click",()=>setMode("materials"));
+    document.getElementById("btnFocusAtom3D").addEventListener("click",()=>setMode("atom"));
+    document.getElementById("btnResetCamera").addEventListener("click",resetCam);
+    document.getElementById("btnToggleSound").addEventListener("click",e=>{state.soundEnabled=!state.soundEnabled;applyStaticTranslations();});
+    document.querySelectorAll(".layout-btn").forEach(b=>b.addEventListener("click",()=>{state.tableLayout=b.getAttribute("data-layout");updateTableTargets();resetCam();}));
+    document.getElementById("btnModelBohr").addEventListener("click",()=>{state.atomModel="bohr";document.getElementById("quantumOrbitalSelect").classList.add("hidden");buildAtom(ELEMENTS[state.selectedZ-1]);});
+    document.getElementById("btnModelQuantum").addEventListener("click",()=>{state.atomModel="quantum";document.getElementById("quantumOrbitalSelect").classList.remove("hidden");buildAtom(ELEMENTS[state.selectedZ-1]);});
+    document.getElementById("quantumOrbitalSelect").addEventListener("change",e=>{state.quantumOrbitalType=e.target.value;buildAtom(ELEMENTS[state.selectedZ-1]);});
+    document.getElementById("atomSpeedSlider").addEventListener("input",e=>state.atomSpeed=parseFloat(e.target.value));
+    document.getElementById("btnToggleNucleusExplode").addEventListener("click",()=>state.nucleusExploded=!state.nucleusExploded);
+    document.getElementById("btnTriggerReaction").addEventListener("click",()=>{state.isReacting=true;state.reactionStartTime=performance.now();playTone(600,0.2);});
+    document.getElementById("btnResetReaction").addEventListener("click",()=>{state.isReacting=false;buildReaction(state.activeReaction);});
+    document.getElementById("materialParamSlider").addEventListener("input",e=>state.materialParam=parseFloat(e.target.value));
+    document.getElementById("btnMaterialPulse").addEventListener("click",()=>{state.materialPulseTime=performance.now();});
+    document.getElementById("btnPrevShowcase").addEventListener("click",()=>{state.activeShowcase=(state.activeShowcase+7)%8;updateUI();setMode("materials");});
+    document.getElementById("btnNextShowcase").addEventListener("click",()=>{state.activeShowcase=(state.activeShowcase+1)%8;updateUI();setMode("materials");});
+    document.getElementById("searchInput").addEventListener("input",e=>{state.searchQuery=e.target.value;renderGrid();updateTableTargets();});
+    document.getElementById("categoryFilter").addEventListener("change",e=>{state.categoryFilter=e.target.value;renderGrid();updateTableTargets();});
+    document.getElementById("sectorFilter").addEventListener("change",e=>{state.sectorFilter=e.target.value;renderGrid();updateTableTargets();});
+
+    let clk=new THREE.Clock();
+    function animate(){requestAnimationFrame(animate);const el=clk.getElapsedTime();
+      cam.r+=(cam.tr-cam.r)*0.08;cam.th+=(cam.tth-cam.th)*0.08;cam.ph+=(cam.tph-cam.ph)*0.08;
+      camera.position.set(cam.r*Math.sin(cam.ph)*Math.sin(cam.th),cam.r*Math.cos(cam.ph),cam.r*Math.sin(cam.ph)*Math.cos(cam.th));camera.lookAt(0,0,0);
+      if(state.mode==="table")tableTileMeshes.forEach(m=>{m.position.lerp(m.userData.tp,0.09);if(state.tableLayout!=="table")m.lookAt(camera.position);else m.rotation.set(0,0,0);});
+      if(state.mode==="atom"){if(state.atomModel==="bohr"){nucParts.forEach(p=>p.position.lerp(state.nucleusExploded?p.userData.ep:p.userData.bp,0.08));orbList.forEach(o=>o.h.rotation.z+=0.014*o.sp*state.atomSpeed);}else if(qCloud){qCloud.rotation.y=el*0.3;}}
+      if(state.mode==="reaction"&&state.isReacting){const p=Math.min(1,(performance.now()-state.reactionStartTime)/2000);rxObjs.forEach(o=>{if(p<0.5){o.r1.position.x=-5*(1-p*2);o.r2.position.x=5*(1-p*2);}else{o.r1.scale.setScalar(0.001);o.r2.scale.setScalar(0.001);o.p1.scale.setScalar((p-0.5)*2);}});}
+      if(state.mode==="materials"){const pa=(performance.now()-state.materialPulseTime)/1000,pf=(pa>=0&&pa<3)?Math.sin(pa/3*Math.PI)*0.6:0,tf=Math.min(1,state.materialParam/100+pf);
+        matObjs.forEach(o=>{if(o.type==="foam"){o.m.position.y=o.bp.y*(1-tf*0.55);}else{o.m.position.x=o.bp.x+o.y*tf*1.2;}});}
+      renderer.render(scene,camera);
+    }
+    window.addEventListener("load",()=>{resize();applyStaticTranslations();animate();});
+  </script>
+</body>
+</html>
