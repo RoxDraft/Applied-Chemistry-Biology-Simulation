@@ -1,5 +1,7 @@
 # Applied Chemistry, Physics & Biology 3D Simulations
 
+Tools and CoWorker : Gemini 4 Argon, Hydrogen
+
 Interactive 3D web simulations built with **Three.js** and **Tailwind CSS** designed with a **Hybrid Architecture**: separating foundational **Chemistry**, **Physics & Material Mechanics**, and **Biology** while highlighting cross-disciplinary connections.
 
 ## Included Simulations
